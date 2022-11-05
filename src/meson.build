@@ -2,6 +2,7 @@ gtk_rest_sources = [
   'main.vala',
   'application.vala',
   'window.vala',
+  'widgets/about.vala'
 ]
 
 gtk_rest_deps = [
@@ -9,7 +10,8 @@ gtk_rest_deps = [
   dependency('libadwaita-1'),
 ]
 
-gtk_rest_sources += gnome.compile_resources('gtk-rest-resources',
+gtk_rest_sources += gnome.compile_resources(
+  'gtk-rest-resources',
   'gtk-rest.gresource.xml',
   c_name: 'gtk_rest'
 )

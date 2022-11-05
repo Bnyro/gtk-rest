@@ -21,11 +21,7 @@
 namespace GtkRest {
     [GtkTemplate (ui = "/com/bnyro/rest/window.ui")]
     public class Window : Adw.ApplicationWindow {
-        [GtkChild]
-        private unowned Gtk.Label label;
-
         public Window (Gtk.Application app) {
-            Gtk.Settings.get_default().set("gtk-application-prefer-dark-theme", true);
             Object (application: app);
         }
     }

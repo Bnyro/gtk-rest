@@ -31,7 +31,7 @@ namespace GtkRest {
                 { "quit", this.quit }
             };
             this.add_action_entries (action_entries, this);
-            this.set_accels_for_action ("app.quit", {"<primary>q"});
+            this.set_accels_for_action ("app.quit", { "<primary>q" });
         }
 
         public override void activate () {
@@ -44,18 +44,9 @@ namespace GtkRest {
         }
 
         private void on_about_action () {
-            string[] developers = { "Bnyro" };
-            var about = new Adw.AboutWindow () {
-                transient_for = this.active_window,
-                application_name = "gtk-rest",
-                application_icon = "com.bnyro.rest",
-                developer_name = "Bnyro",
-                version = "0.1.0",
-                developers = developers,
-                copyright = "© 2022 Bnyro",
-            };
-
-            about.present ();
+            var about = new Widget.AboutDialog ();
+            about.dialog.transient_for = this.active_window;
+            about.dialog.present ();
         }
 
         private void on_preferences_action () {
