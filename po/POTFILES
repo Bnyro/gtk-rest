@@ -1,0 +1,6 @@
+data/com.bnyro.rest.desktop.in
+data/com.bnyro.rest.appdata.xml.in
+data/com.bnyro.rest.gschema.xml
+src/main.vala
+src/window.vala
+src/window.ui
