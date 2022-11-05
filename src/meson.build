@@ -8,6 +8,9 @@ gtk_rest_sources = [
 gtk_rest_deps = [
   dependency('gtk4'),
   dependency('libadwaita-1'),
+  dependency('libsoup-2.4'),
+  dependency('json-glib-1.0'),
+  dependency('gtksourceview-5'),
 ]
 
 gtk_rest_sources += gnome.compile_resources(

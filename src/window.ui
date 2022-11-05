@@ -48,6 +48,12 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkLabel" id="response">
+                <property name="vexpand">true</property>
+                <property name="label">Welcome</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

@@ -21,8 +21,14 @@
 namespace GtkRest {
     public class Application : Adw.Application {
         public Application () {
-            Object (application_id: "com.bnyro.rest", flags: ApplicationFlags.FLAGS_NONE);
+            Object (
+                application_id: "com.bnyro.rest",
+                flags: ApplicationFlags.FLAGS_NONE
+            );
         }
+
+        private Soup.Session session;
+        private string url;
 
         construct {
             ActionEntry[] action_entries = {
@@ -40,6 +46,8 @@ namespace GtkRest {
             if (win == null) {
                 win = new GtkRest.Window (this);
             }
+            setup_window ((GtkRest.Window) win);
+            create_session ();
             win.present ();
         }
 
@@ -51,6 +59,31 @@ namespace GtkRest {
 
         private void on_preferences_action () {
             message ("app.preferences action activated");
+        }
+
+        private void setup_window (GtkRest.Window window) {
+            window.send.clicked.connect (() => {
+                start_request ();
+            });
+            url = window.url.text;
+            window.url.changed.connect (() => {
+                this.url = window.url.text;
+            });
+        }
+
+        private void create_session () {
+            this.session = new Soup.Session ();
+            this.session.user_agent = "Gtk Rest/1.0";
+            this.session.timeout = 20;
+        }
+
+        private void start_request () {
+            var message = new Soup.Message ("GET", url);
+            this.session.queue_message (message, (ses, msg) => {
+                var body = (string) msg.response_body.flatten ().data;
+                var window = (GtkRest.Window) this.active_window;
+                window.response.label = body;
+            });
         }
     }
 }

@@ -21,6 +21,13 @@
 namespace GtkRest {
     [GtkTemplate (ui = "/com/bnyro/rest/window.ui")]
     public class Window : Adw.ApplicationWindow {
+        [GtkChild]
+        public unowned Gtk.Entry url;
+        [GtkChild]
+        public unowned Gtk.Button send;
+        [GtkChild]
+        public unowned Gtk.Label response;
+
         public Window (Gtk.Application app) {
             Object (application: app);
         }
