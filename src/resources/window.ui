@@ -8,7 +8,7 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHeaderBar" id="header_bar">
+          <object class="GtkHeaderBar" id="headerbar">
             <child type="start">
               <object class="GtkMenuButton">
                 <property name="icon-name">list-add-symbolic</property>

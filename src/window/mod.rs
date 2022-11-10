@@ -1,8 +1,6 @@
 mod imp;
 
-use glib::Object;
 use gtk::{gio, glib};
-use adw::Application;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -12,8 +10,8 @@ glib::wrapper! {
 }
 
 impl Window {
-    pub fn new(app: &Application) -> Self {
-        // Create new window
-        Object::builder().property("application", app).build()
+    pub fn new<P: glib::IsA<gtk::Application>>(application: &P) -> Self {
+        glib::Object::new(&[("application", application)])
+            .expect("Failed to create Window")
     }
 }

@@ -1,6 +1,6 @@
 mod window;
-
 use gtk::gio;
+use gtk::glib;
 use gtk::prelude::*;
 use adw::Application;
 use window::Window;
@@ -21,9 +21,39 @@ fn main() {
     app.run();
 }
 
-fn build_ui(app: &Application) {
-    let window = Window::new(&app);
-    // Present window
-    window.present();
+fn show_about_dialog(app: &Application) {
+    let window = app.active_window().unwrap();
+    let about = adw::AboutWindow::builder()
+        .transient_for(&window)
+        .application_name("gtk-rest")
+        .application_icon("com.bnyro.rest")
+        .developer_name("Bnyro")
+        .version("0.1.0")
+        .developers(vec!["Bnyro".into()])
+        .copyright("© 2022 Bnyro")
+        .build();
+    about.present();
 }
 
+fn build_ui(app: &Application) {
+    activate(app);
+
+    let action = gio::SimpleAction::new("about", None);
+    action.connect_activate(glib::clone!(@weak app => move |_, _| {
+        show_about_dialog(&app);
+    }));
+    app.add_action(&action);
+}
+
+fn activate(app: &Application) {
+    // Get the current window or create one if necessary
+    let window = if let Some(window) = app.active_window() {
+        window
+    } else {
+        let window = Window::new(app);
+        window.upcast()
+    };
+
+    // Ask the window manager/compositor to present the window
+    window.present();
+}

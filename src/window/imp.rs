@@ -1,7 +1,5 @@
-use std::cell::Cell;
-
 use glib::subclass::InitializingObject;
-use gtk::prelude::*;
+use gtk::{prelude::*, Entry, Button, HeaderBar};
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
 
@@ -10,7 +8,12 @@ use gtk::{glib, CompositeTemplate};
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/bnyro/rest/window.ui")]
 pub struct Window {
-    pub number: Cell<i32>,
+    #[template_child]
+    pub headerbar: TemplateChild<HeaderBar>,
+    #[template_child]
+    pub url: TemplateChild<Entry>,
+    #[template_child]
+    pub send: TemplateChild<Button>
 }
 // ANCHOR_END: object
 
@@ -38,10 +41,8 @@ impl ObjectSubclass for Window {
 #[gtk::template_callbacks]
 impl Window {
     #[template_callback]
-    fn handle_button_clicked(&self, button: &gtk::Button) {
-        let number_increased = self.number.get() + 1;
-        self.number.set(number_increased);
-        button.set_label(&number_increased.to_string())
+    fn handle_button_clicked(&self, _button: &gtk::Button) {
+
     }
 }
 // ANCHOR_END: template_callbacks
