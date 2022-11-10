@@ -1,5 +1,5 @@
 use glib::subclass::InitializingObject;
-use gtk::{prelude::*, Entry, Button, HeaderBar};
+use gtk::{prelude::*, Entry, Button, HeaderBar, Label};
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
 
@@ -13,7 +13,9 @@ pub struct Window {
     #[template_child]
     pub url: TemplateChild<Entry>,
     #[template_child]
-    pub send: TemplateChild<Button>
+    pub send: TemplateChild<Button>,
+    #[template_child]
+    pub response: TemplateChild<Label>
 }
 // ANCHOR_END: object
 
@@ -41,11 +43,23 @@ impl ObjectSubclass for Window {
 #[gtk::template_callbacks]
 impl Window {
     #[template_callback]
-    fn handle_button_clicked(&self, _button: &gtk::Button) {
-
+    fn handle_send(&self, _button: &gtk::Button) {
+        let url = self.url.text().to_string();
+        self.request(url);
     }
 }
 // ANCHOR_END: template_callbacks
+
+impl Window {
+    fn request(&self, url: String) {
+        let resp = reqwest::blocking::get(url);
+        if resp.is_ok() {
+            let text = resp.unwrap().text().unwrap();
+            println!("{:#?}", text);
+            self.response.set_text(text.as_str());
+        }
+    }
+}
 
 // Trait shared by all GObjects
 impl ObjectImpl for Window {}

@@ -40,6 +40,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="send">
+                  <signal name="clicked" handler="handle_send" swapped="true"/>
                     <property name="label">Send</property>
                     <property name="margin-start">10</property>
                   </object>
