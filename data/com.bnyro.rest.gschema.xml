@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="gtk-rest">
-	<schema id="com.bnyro.rest" path="/com/bnyro/rest/">
-	</schema>
-</schemalist>
