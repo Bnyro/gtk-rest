@@ -1,7 +1,9 @@
 use glib::subclass::InitializingObject;
-use gtk::{prelude::*, Entry, Button, HeaderBar, Label};
 use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate};
+use gtk::{glib, CompositeTemplate, DropDown};
+use gtk::{prelude::*, Button, Entry, HeaderBar, Label};
+
+use crate::client::Request;
 
 // ANCHOR: object
 // Object holding the state
@@ -15,7 +17,9 @@ pub struct Window {
     #[template_child]
     pub send: TemplateChild<Button>,
     #[template_child]
-    pub response: TemplateChild<Label>
+    pub response: TemplateChild<Label>,
+    #[template_child]
+    pub method: TemplateChild<DropDown>,
 }
 // ANCHOR_END: object
 
@@ -44,15 +48,9 @@ impl ObjectSubclass for Window {
 impl Window {
     #[template_callback]
     fn handle_send(&self, _button: &gtk::Button) {
-        let url = self.url.text().to_string();
-        self.request(url);
-    }
-}
-// ANCHOR_END: template_callbacks
-
-impl Window {
-    fn request(&self, url: String) {
-        let resp = reqwest::blocking::get(url);
+        let request = Request::new(self.url.text().to_string(), self.method.selected());
+        let resp = request.execute();
+        // let client = reqwest::Client::new();
         if resp.is_ok() {
             let text = resp.unwrap().text().unwrap();
             println!("{:#?}", text);
@@ -60,6 +58,7 @@ impl Window {
         }
     }
 }
+// ANCHOR_END: template_callbacks
 
 // Trait shared by all GObjects
 impl ObjectImpl for Window {}

@@ -32,7 +32,24 @@
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
                 <child>
+                  <object class="GtkDropDown" id="method">
+                    <property name="model">
+                      <object class="GtkStringList">
+                        <items>
+                          <item>GET</item>
+                          <item>POST</item>
+                          <item>PUT</item>
+                          <item>PATCH</item>
+                          <item>DELETE</item>
+                          <item>HEAD</item>
+                        </items>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkEntry" id="url">
+                    <property name="margin-start">10</property>
                     <property name="text">https://localhost:8000</property>
                     <property name="placeholder-text">http://example.com/api</property>
                     <property name="hexpand">true</property>

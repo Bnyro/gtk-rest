@@ -1,15 +1,15 @@
+mod client;
 mod window;
+use adw::Application;
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::*;
-use adw::Application;
 use window::Window;
 
 const APP_ID: &str = "com.bnyro.rest";
 
 fn main() {
-    gio::resources_register_include!("resources.gresource")
-        .expect("Failed to register resources.");
+    gio::resources_register_include!("resources.gresource").expect("Failed to register resources.");
 
     // Create a new application
     let app = Application::builder().application_id(APP_ID).build();
