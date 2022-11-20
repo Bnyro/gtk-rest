@@ -29,7 +29,7 @@ pub struct Window {
 impl ObjectSubclass for Window {
     // `NAME` needs to match `class` attribute of template
     const NAME: &'static str = "GtkRestWindow";
-    type Type = super::Window;
+    type Type = super::GtkRestWindow;
     type ParentType = gtk::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
