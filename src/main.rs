@@ -38,11 +38,19 @@ fn show_about_dialog(app: &Application) {
 fn build_ui(app: &Application) {
     activate(app);
 
+    app.set_accels_for_action("app.quit", &["<primary>q"]);
+
     let action = gio::SimpleAction::new("about", None);
     action.connect_activate(glib::clone!(@weak app => move |_, _| {
         show_about_dialog(&app);
     }));
     app.add_action(&action);
+
+    let quit_action = gio::SimpleAction::new("quit", None);
+    quit_action.connect_activate(glib::clone!(@weak app => move |_, _| {
+        app.quit();
+    }));
+    app.add_action(&quit_action);
 }
 
 fn activate(app: &Application) {
