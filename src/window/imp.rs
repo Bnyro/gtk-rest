@@ -1,6 +1,10 @@
+use adw::subclass::prelude::AdwApplicationWindowImpl;
+use adw::subclass::prelude::WidgetClassSubclassExt;
 use glib::subclass::InitializingObject;
-use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate, DropDown};
+use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
+use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
+use gtk::subclass::window::WindowImpl;
+use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
 use gtk::{prelude::*, Button, Entry, HeaderBar, Label};
 
 use crate::client::Request;
@@ -30,7 +34,7 @@ impl ObjectSubclass for Window {
     // `NAME` needs to match `class` attribute of template
     const NAME: &'static str = "GtkRestWindow";
     type Type = super::GtkRestWindow;
-    type ParentType = gtk::ApplicationWindow;
+    type ParentType = adw::ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
@@ -71,3 +75,5 @@ impl WindowImpl for Window {}
 
 // Trait shared by all application windows
 impl ApplicationWindowImpl for Window {}
+
+impl AdwApplicationWindowImpl for Window {}

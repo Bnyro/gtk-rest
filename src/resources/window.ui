@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk" version="4.0"/>
-  <template class="GtkRestWindow" parent="GtkApplicationWindow">
+  <requires lib="gtk" version="4.0" />
+  <requires lib="adw" version="1.0" />
+  <template class="GtkRestWindow" parent="AdwApplicationWindow">
     <property name="default-width">600</property>
     <property name="default-height">300</property>
     <child>
@@ -57,7 +58,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="send">
-                  <signal name="clicked" handler="handle_send" swapped="true"/>
+                    <signal name="clicked" handler="handle_send" swapped="true" />
                     <property name="label">Send</property>
                     <property name="margin-start">10</property>
                   </object>
