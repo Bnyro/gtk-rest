@@ -51,7 +51,7 @@
                 <child>
                   <object class="GtkEntry" id="url">
                     <property name="margin-start">10</property>
-                    <property name="text">https://localhost:8000</property>
+                    <property name="text">http://localhost:8000</property>
                     <property name="placeholder-text">http://example.com/api</property>
                     <property name="hexpand">true</property>
                   </object>
@@ -66,9 +66,14 @@
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="response">
+              <object class="GtkScrolledWindow">
                 <property name="vexpand">true</property>
-                <property name="label">Welcome</property>
+                <child>
+                  <object class="GtkSourceView" id="response">
+                    <property name="editable">false</property>
+                    <property name="wrap-mode">word</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

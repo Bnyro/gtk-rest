@@ -5,7 +5,8 @@ use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
 use gtk::subclass::window::WindowImpl;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
-use gtk::{prelude::*, Button, Entry, HeaderBar, Label};
+use gtk::{prelude::*, Button, Entry, HeaderBar};
+use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
 
@@ -21,7 +22,7 @@ pub struct Window {
     #[template_child]
     pub send: TemplateChild<Button>,
     #[template_child]
-    pub response: TemplateChild<Label>,
+    pub response: TemplateChild<sourceview5::View>,
     #[template_child]
     pub method: TemplateChild<DropDown>,
 }
@@ -58,7 +59,20 @@ impl Window {
         if resp.is_ok() {
             let text = resp.unwrap().text().unwrap();
             println!("{:#?}", text);
-            self.response.set_text(text.as_str());
+            let buffer = sourceview5::Buffer::new(None);
+            buffer.set_highlight_syntax(true);
+            buffer.set_text(text.as_str());
+            if let Some(ref language) = sourceview5::LanguageManager::new().language("json") {
+                buffer.set_language(Some(language));
+            }
+            if let Some(ref scheme) =
+                sourceview5::StyleSchemeManager::new().scheme("solarized-light")
+            {
+                buffer.set_style_scheme(Some(scheme));
+            }
+            buffer.set_highlight_matching_brackets(true);
+
+            self.response.set_buffer(Some(&buffer));
         }
     }
 }
