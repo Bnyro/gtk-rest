@@ -55,7 +55,6 @@ impl Window {
     fn handle_send(&self, _button: &gtk::Button) {
         let request = Request::new(self.url.text().to_string(), self.method.selected());
         let resp = request.execute();
-        // let client = reqwest::Client::new();
         if resp.is_ok() {
             let text = resp.unwrap().text().unwrap();
             println!("{:#?}", text);
@@ -65,9 +64,7 @@ impl Window {
             if let Some(ref language) = sourceview5::LanguageManager::new().language("json") {
                 buffer.set_language(Some(language));
             }
-            if let Some(ref scheme) =
-                sourceview5::StyleSchemeManager::new().scheme("solarized-light")
-            {
+            if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("dark") {
                 buffer.set_style_scheme(Some(scheme));
             }
             buffer.set_highlight_matching_brackets(true);
