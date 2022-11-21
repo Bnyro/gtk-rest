@@ -64,7 +64,7 @@ impl Window {
             if let Some(ref language) = sourceview5::LanguageManager::new().language("json") {
                 buffer.set_language(Some(language));
             }
-            if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("adwaita-dark")
+            if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("classic-dark")
             {
                 buffer.set_style_scheme(Some(scheme));
             }

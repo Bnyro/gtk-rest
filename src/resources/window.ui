@@ -52,7 +52,7 @@
                 <child>
                   <object class="GtkEntry" id="url">
                     <property name="margin-start">10</property>
-                    <property name="text">http://localhost:8000</property>
+                    <property name="text">http://alpine.fritz.box:443</property>
                     <property name="placeholder-text">http://example.com/api</property>
                     <property name="hexpand">true</property>
                   </object>
