@@ -88,11 +88,9 @@
                     <property name="name">body</property>
                     <property name="title" translatable="yes">Body</property>
                     <property name="child">
-                      <object class="GtkImage">
+                      <object class="GtkEntry" id="body">
                         <property name="margin-top">20</property>
                         <property name="margin-bottom">20</property>
-                        <property name="pixel-size">100</property>
-                        <property name="icon-name">org.gtk.Demo4</property>
                       </object>
                     </property>
                   </object>

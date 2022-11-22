@@ -2,18 +2,19 @@ use reqwest::blocking::Response;
 
 pub struct Request {
     url: String,
+    body: String,
     method: u32,
 }
 
 impl Request {
-    pub fn new(url: String, method: u32) -> Self {
-        return Self { url, method };
+    pub fn new(url: String, body: String, method: u32) -> Self {
+        return Self { url, body, method };
     }
 
     pub fn execute(&self) -> Result<Response, reqwest::Error> {
         let client = reqwest::blocking::Client::new();
         let url = self.url.as_str();
-        let resp = match self.method {
+        let request = match self.method {
             0 => client.get(url),
             1 => client.post(url),
             2 => client.put(url),
@@ -22,6 +23,7 @@ impl Request {
             5 => client.head(url),
             _ => client.get(url),
         };
-        resp.send()
+        let body = self.body.clone();
+        request.body(body).send()
     }
 }

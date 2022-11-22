@@ -23,9 +23,11 @@ pub struct Window {
     #[template_child]
     pub send: TemplateChild<Button>,
     #[template_child]
-    pub response: TemplateChild<sourceview5::View>,
-    #[template_child]
     pub method: TemplateChild<DropDown>,
+    #[template_child]
+    pub body: TemplateChild<Entry>,
+    #[template_child]
+    pub response: TemplateChild<sourceview5::View>,
 }
 // ANCHOR_END: object
 
@@ -54,7 +56,11 @@ impl ObjectSubclass for Window {
 impl Window {
     #[template_callback]
     fn handle_send(&self, _button: &gtk::Button) {
-        let request = Request::new(self.url.text().to_string(), self.method.selected());
+        let request = Request::new(
+            self.url.text().to_string(),
+            self.body.text().to_string(),
+            self.method.selected(),
+        );
         let resp = request.execute();
         match resp {
             Ok(response) => {
@@ -83,7 +89,7 @@ impl Window {
             let language = sourceview5::LanguageManager::new()
                 .guess_language(None::<String>, Some(content_type.as_str()));
 
-            buffer.set_language(Some(&language.unwrap()));
+            buffer.set_language(language.as_ref());
 
             if content_type.contains("json") {
                 buffer.set_language(
