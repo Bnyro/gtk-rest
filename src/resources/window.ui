@@ -26,7 +26,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkPaned">
+          <object class="GtkBox">
             <property name="orientation">vertical</property>
             <property name="margin-top">20</property>
             <property name="margin-start">20</property>
@@ -67,26 +67,84 @@
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="margin-top">20</property>
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
             <child>
-              <object class="GtkScrolledWindow">
-                <property name="vexpand">true</property>
-                <property name="margin-top">10</property>
-                <property name="margin-bottom">20</property>
+              <object class="GtkStackSwitcher">
+                <property name="stack">stack</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStack" id="stack">
+                <property name="transition-type">crossfade</property>
                 <child>
-                  <object class="GtkSourceView" id="response">
-                    <property name="editable">false</property>
-                    <property name="wrap-mode">word</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
-                    <property name="monospace">True</property>
-                    <property name="left-margin">12</property>
-                    <property name="top-margin">12</property>
-                    <property name="bottom-margin">12</property>
-                    <property name="right-margin">12</property>
+                  <object class="GtkStackPage">
+                    <property name="name">body</property>
+                    <property name="title" translatable="yes">Body</property>
+                    <property name="child">
+                      <object class="GtkImage">
+                        <property name="margin-top">20</property>
+                        <property name="margin-bottom">20</property>
+                        <property name="pixel-size">100</property>
+                        <property name="icon-name">org.gtk.Demo4</property>
+                      </object>
+                    </property>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="name">headers</property>
+                    <property name="title" translatable="yes">Headers</property>
+                    <property name="child">
+                      <object class="GtkCheckButton">
+                        <property name="label" translatable="yes">Page 2</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="name">queries</property>
+                    <property name="title" translatable="yes">Queries</property>
+                    <property name="child">
+                      <object class="GtkSpinner">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="spinning">1</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="vexpand">true</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">20</property>
+            <child>
+              <object class="GtkSourceView" id="response">
+                <property name="editable">false</property>
+                <property name="wrap-mode">word</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="monospace">True</property>
+                <property name="left-margin">12</property>
+                <property name="top-margin">12</property>
+                <property name="bottom-margin">12</property>
+                <property name="right-margin">12</property>
               </object>
             </child>
           </object>
