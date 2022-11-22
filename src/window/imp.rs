@@ -1,6 +1,9 @@
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
 use glib::subclass::InitializingObject;
+use gtk::glib::clone;
+use gtk::glib::MainContext;
+use gtk::glib::PRIORITY_DEFAULT;
 use gtk::subclass::prelude::ObjectImplExt;
 use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
@@ -61,18 +64,35 @@ impl Window {
             self.body.text().to_string(),
             self.method.selected(),
         );
-        let resp = request.execute();
-        match resp {
-            Ok(response) => {
+
+        let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);
+        let main_context = MainContext::default();
+
+        // The long running operation runs now in a separate thread
+        main_context.spawn_local(clone!(@strong sender => async move {
+            // Deactivate the button until the operation is done
+
+            let response = request.execute().await;
+
+            if let Ok(response) = response {
                 let headers = response.headers().clone();
-                let content_type = headers.get("Content-Type");
-                let ct_split: Vec<&str> =
-                    content_type.unwrap().to_str().unwrap().split(";").collect();
-                let text = response.text().unwrap();
-                self.set_response_text(text, Some(ct_split[0].to_string()));
+                        let content_type = headers.get("Content-Type");
+                        let ct_split: Vec<&str> =
+                            content_type.unwrap().to_str().unwrap().split(";").collect();
+                        let text = response.text().await.unwrap();
+                        let ct = ct_split[0];
+                sender.send((text, Some(ct.to_string()))).expect("Error sending data");
             }
-            Err(_) => {}
-        }
+        }));
+        receiver.attach(
+            None,
+            clone!(@weak self as win => @default-return Continue(false),
+                move |(text, header)| {
+                    win.set_response_text(text, header);
+                    Continue(true)
+                }
+            ),
+        );
     }
 }
 
