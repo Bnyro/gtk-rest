@@ -3,7 +3,7 @@ use glib::clone;
 use gtk::prelude::*;
 use gtk::{gio, glib};
 
-use crate::GtkRestWindow;
+use crate::Window;
 
 mod imp {
     use super::*;
@@ -39,7 +39,7 @@ mod imp {
             let window = if let Some(window) = application.active_window() {
                 window
             } else {
-                let window = GtkRestWindow::new(&*application);
+                let window = Window::new(&*application);
                 window.upcast()
             };
 

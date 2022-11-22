@@ -6,7 +6,7 @@ use application::GtkRestApplication;
 use gtk::gio;
 use gtk::prelude::*;
 use preferences::*;
-use window::GtkRestWindow;
+use window::Window;
 
 const APP_ID: &str = "com.bnyro.rest";
 
