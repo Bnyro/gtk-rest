@@ -55,23 +55,42 @@ impl Window {
     fn handle_send(&self, _button: &gtk::Button) {
         let request = Request::new(self.url.text().to_string(), self.method.selected());
         let resp = request.execute();
-        if resp.is_ok() {
-            let text = resp.unwrap().text().unwrap();
-            println!("{:#?}", text);
-            let buffer = sourceview5::Buffer::new(None);
-            buffer.set_highlight_syntax(true);
-            buffer.set_text(text.as_str());
-            if let Some(ref language) = sourceview5::LanguageManager::new().language("json") {
-                buffer.set_language(Some(language));
+        match resp {
+            Ok(response) => {
+                self.set_response_text(response);
             }
-            if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("classic-dark")
-            {
-                buffer.set_style_scheme(Some(scheme));
-            }
-            buffer.set_highlight_matching_brackets(true);
-
-            self.response.set_buffer(Some(&buffer));
+            Err(_) => {}
         }
+    }
+}
+
+impl Window {
+    pub fn set_response_text(&self, response: reqwest::blocking::Response) {
+        let headers = response.headers().clone();
+        let text = response.text().unwrap();
+
+        println!("{:#?}", text);
+        let buffer = sourceview5::Buffer::new(None);
+        buffer.set_highlight_syntax(true);
+        buffer.set_highlight_matching_brackets(true);
+        buffer.set_text(text.as_str());
+
+        let content_type = headers.get("Content-Type");
+        println!("ct: {:?}", content_type);
+
+        if let Some(content_type) = content_type {
+            let ct_split: Vec<&str> = content_type.to_str().unwrap().split(";").collect();
+            let language = sourceview5::LanguageManager::new()
+                .guess_language(None::<String>, Some(ct_split[0]));
+
+            buffer.set_language(Some(&language.unwrap()));
+        }
+
+        if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("classic-dark") {
+            buffer.set_style_scheme(Some(scheme));
+        }
+
+        self.response.set_buffer(Some(&buffer));
     }
 }
 // ANCHOR_END: template_callbacks
