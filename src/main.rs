@@ -1,5 +1,6 @@
 mod application;
 mod client;
+mod listitem;
 mod preferences;
 mod window;
 use application::GtkRestApplication;

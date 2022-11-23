@@ -16,19 +16,13 @@ pub struct Request {
     pub name: String,
     pub target_url: String,
     pub method: String,
-    pub headers: Vec<Header>,
-    pub queries: Vec<Query>,
+    pub headers: Vec<KeyValuePair>,
+    pub queries: Vec<KeyValuePair>,
     pub body: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct Header {
-    pub key: String,
-    pub value: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct Query {
+pub struct KeyValuePair {
     pub key: String,
     pub value: String,
 }
