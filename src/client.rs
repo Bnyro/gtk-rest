@@ -1,4 +1,4 @@
-use reqwest::blocking::Response;
+use reqwest::blocking::{Client, Response};
 
 pub struct Request {
     url: String,
@@ -11,8 +11,8 @@ impl Request {
         return Self { url, body, method };
     }
 
-    pub fn execute(&self) -> Result<Response, reqwest::Error> {
-        let client = reqwest::blocking::Client::new();
+    pub async fn execute(&self) -> Result<Response, reqwest::Error> {
+        let client = Client::new();
         let url = self.url.as_str();
         let request = match self.method {
             0 => client.get(url),
