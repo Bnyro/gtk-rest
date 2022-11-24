@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
 use glib::subclass::InitializingObject;
@@ -16,6 +18,7 @@ use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
 use crate::kvpair::KvPair;
+use crate::preferences::KeyValuePair;
 
 // ANCHOR: object
 // Object holding the state
@@ -38,6 +41,7 @@ pub struct Window {
     pub queries: TemplateChild<Box>,
     #[template_child]
     pub response: TemplateChild<sourceview5::View>,
+    pub header_pairs: RefCell<Vec<KeyValuePair>>,
 }
 // ANCHOR_END: object
 
@@ -138,8 +142,13 @@ impl Window {
     }
 
     pub fn create_header(&self) {
+        let on_change = clone!(@weak self as win => move |kvp| {
+            win.header_pairs.borrow_mut().push(kvp);
+            println!("pairs: {:?}", win.header_pairs.borrow())
+        });
+        let on_change_clone = on_change.clone();
         let mut kv_pair = KvPair::new();
-        let child = kv_pair.build(&self.headers);
+        let child = kv_pair.build(&self.headers, on_change, on_change_clone);
         self.headers.append(&child);
     }
 }
