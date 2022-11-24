@@ -142,12 +142,14 @@ impl Window {
     }
 
     pub fn create_header(&self) {
-        let on_change = clone!(@weak self as win => move |kvp| {
-            win.header_pairs.borrow_mut().push(kvp);
+        let on_change = clone!(@weak self as win => move |index, kvp| {
+            win.header_pairs.borrow_mut()[index] = kvp;
             println!("pairs: {:?}", win.header_pairs.borrow())
         });
         let on_change_clone = on_change.clone();
-        let mut kv_pair = KvPair::new();
+        let index = self.header_pairs.borrow().len();
+        self.header_pairs.borrow_mut().push(KeyValuePair::default());
+        let mut kv_pair = KvPair::new(index);
         let child = kv_pair.build(&self.headers, on_change, on_change_clone);
         self.headers.append(&child);
     }

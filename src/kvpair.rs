@@ -6,14 +6,16 @@ use gtk::{
 
 use crate::preferences::KeyValuePair;
 
-pub struct KvPair {}
+pub struct KvPair {
+    index: usize,
+}
 
 impl KvPair {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(index: usize) -> Self {
+        Self { index }
     }
 
-    pub fn build<F: Fn(KeyValuePair) + 'static>(
+    pub fn build<F: Fn(usize, KeyValuePair) + 'static>(
         &mut self,
         parent: &gtk::Box,
         on_change: F,
@@ -25,11 +27,12 @@ impl KvPair {
         let key = gtk::Entry::new();
         let value = gtk::Entry::new();
         value.set_hexpand(true);
+        let index = self.index;
         key.connect_changed(clone!(@weak value as val => move |k| {
-            on_change(KeyValuePair { key: k.text().to_string(), value: val.text().to_string() })
+            on_change(index, KeyValuePair { key: k.text().to_string(), value: val.text().to_string() })
         }));
         value.connect_changed(clone!(@weak key as k => move |val| {
-            on_change_clone(KeyValuePair { key: k.text().to_string(), value: val.text().to_string() })
+            on_change_clone(index, KeyValuePair { key: k.text().to_string(), value: val.text().to_string() })
         }));
         let delete = gtk::Button::from_icon_name("edit-delete");
         delete.connect_clicked(
