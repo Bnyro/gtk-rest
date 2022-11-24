@@ -1,4 +1,4 @@
-use reqwest::{Client, Response};
+use reqwest::blocking::{Client, Response};
 
 pub struct Request {
     url: String,
@@ -24,6 +24,6 @@ impl Request {
             _ => client.get(url),
         };
         let body = self.body.clone();
-        request.body(body).send().await
+        request.body(body).send()
     }
 }

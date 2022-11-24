@@ -79,7 +79,7 @@ impl Window {
                         let content_type = headers.get("Content-Type");
                         let ct_split: Vec<&str> =
                             content_type.unwrap().to_str().unwrap().split(";").collect();
-                        let text = response.text().await.unwrap();
+                        let text = response.text().unwrap();
                         let ct = ct_split[0];
                 sender.send((text, Some(ct.to_string()))).expect("Error sending data");
             }
