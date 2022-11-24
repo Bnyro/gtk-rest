@@ -2,7 +2,6 @@
 <gresources>
   <gresource prefix="/com/bnyro/rest">
     <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
-    <file compressed="true" preprocess="xml-stripblanks">listitem.ui</file>
     <file compressed="true" preprocess="xml-stripblanks" alias="gtk/help-overlay.ui">shortcuts.ui</file>
   </gresource>
 </gresources>

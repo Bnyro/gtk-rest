@@ -14,29 +14,3 @@ impl Window {
         glib::Object::new::<Window>(&[("application", application)])
     }
 }
-
-// ANCHOR: object
-// Object holding the state
-#[derive(CompositeTemplate, Default)]
-#[template(resource = "/com/bnyro/rest/window.ui")]
-pub struct Window {
-    #[template_child]
-    pub headerbar: TemplateChild<HeaderBar>,
-    #[template_child]
-    pub url: TemplateChild<Entry>,
-    #[template_child]
-    pub send: TemplateChild<Button>,
-    #[template_child]
-    pub method: TemplateChild<DropDown>,
-    #[template_child]
-    pub body: TemplateChild<Entry>,
-    #[template_child]
-    pub headers: TemplateChild<ListView>,
-    #[template_child]
-    pub queries: TemplateChild<ListView>,
-    #[template_child]
-    pub response: TemplateChild<sourceview5::View>,
-
-    pub headers: RefCell<Option<gio::ListStore>>,
-}
-// ANCHOR_END: object
