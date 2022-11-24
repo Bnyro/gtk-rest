@@ -100,8 +100,10 @@
                     <property name="name">headers</property>
                     <property name="title" translatable="yes">Headers</property>
                     <property name="child">
-                      <object class="GtkListView" id="headers">
+                      <object class="GtkBox" id="headers">
                         <property name="valign">start</property>
+                        <property name="orientation">vertical</property>
+                        <property name="margin-top">10</property>
                       </object>
                     </property>
                   </object>
@@ -111,8 +113,10 @@
                     <property name="name">queries</property>
                     <property name="title" translatable="yes">Queries</property>
                     <property name="child">
-                      <object class="GtkListView" id="queries">
+                      <object class="GtkBox" id="queries">
                         <property name="valign">start</property>
+                        <property name="orientation">vertical</property>
+                        <property name="margin-top">10</property>
                       </object>
                     </property>
                   </object>
@@ -125,6 +129,8 @@
           <object class="GtkScrolledWindow">
             <property name="vexpand">true</property>
             <property name="margin-top">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
             <property name="margin-bottom">20</property>
             <child>
               <object class="GtkSourceView" id="response">

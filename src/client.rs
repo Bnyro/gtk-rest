@@ -8,7 +8,7 @@ pub struct Request {
 
 impl Request {
     pub fn new(url: String, body: String, method: u32) -> Self {
-        return Self { url, body, method };
+        Self { url, body, method }
     }
 
     pub async fn execute(&self) -> Result<Response, reqwest::Error> {

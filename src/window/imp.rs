@@ -1,19 +1,21 @@
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
 use glib::subclass::InitializingObject;
+use gtk::gio::SimpleAction;
 use gtk::glib::clone;
 use gtk::glib::MainContext;
 use gtk::glib::PRIORITY_DEFAULT;
 use gtk::subclass::prelude::ObjectImplExt;
+use gtk::subclass::prelude::ObjectSubclassExt;
 use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
 use gtk::subclass::window::WindowImpl;
-use gtk::ListView;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
-use gtk::{prelude::*, Button, Entry, HeaderBar};
+use gtk::{prelude::*, Box, Button, Entry, HeaderBar};
 use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
+use crate::kvpair::KvPair;
 
 // ANCHOR: object
 // Object holding the state
@@ -31,9 +33,9 @@ pub struct Window {
     #[template_child]
     pub body: TemplateChild<Entry>,
     #[template_child]
-    pub headers: TemplateChild<ListView>,
+    pub headers: TemplateChild<Box>,
     #[template_child]
-    pub queries: TemplateChild<ListView>,
+    pub queries: TemplateChild<Box>,
     #[template_child]
     pub response: TemplateChild<sourceview5::View>,
 }
@@ -134,6 +136,12 @@ impl Window {
 
         self.response.set_buffer(Some(&buffer));
     }
+
+    pub fn create_header(&self) {
+        let mut kv_pair = KvPair::new();
+        let child = kv_pair.build(&self.headers);
+        self.headers.append(&child);
+    }
 }
 // ANCHOR_END: template_callbacks
 
@@ -141,6 +149,13 @@ impl Window {
 impl ObjectImpl for Window {
     fn constructed(&self) {
         self.parent_constructed();
+
+        let obj = self.obj();
+        let quit_action = SimpleAction::new("add_header", None);
+        quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
+            win.create_header();
+        }));
+        obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
     }
