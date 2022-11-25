@@ -24,7 +24,7 @@ mod imp {
             let obj = self.instance();
             obj.setup_gactions();
             obj.set_accels_for_action("app.quit", &["<primary>q"]);
-            obj.set_accels_for_action("app.about", &["<primary>a"]);
+            obj.set_accels_for_action("app.about", &["<primary>i"]);
         }
     }
 
