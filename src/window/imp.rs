@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::rc::Rc;
 
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
@@ -146,11 +147,10 @@ impl Window {
             win.header_pairs.borrow_mut()[index] = kvp;
             println!("pairs: {:?}", win.header_pairs.borrow())
         });
-        let on_change_clone = on_change.clone();
         let index = self.header_pairs.borrow().len();
         self.header_pairs.borrow_mut().push(KeyValuePair::default());
         let mut kv_pair = KvPair::new(index);
-        let child = kv_pair.build(&self.headers, on_change, on_change_clone);
+        let child = kv_pair.build(&self.headers, Rc::new(on_change));
         self.headers.append(&child);
     }
 }
