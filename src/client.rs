@@ -40,6 +40,8 @@ impl Request {
             _ => client.get(url),
         };
 
+        request = request.header("User-Agent", "Gtk-Rest/1.0");
+
         // insert all headers
         for index in 0..self.headers.len() {
             let pair = self.headers[index].clone();
