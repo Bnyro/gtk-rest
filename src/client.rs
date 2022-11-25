@@ -39,16 +39,26 @@ impl Request {
             5 => client.head(url),
             _ => client.get(url),
         };
-        let headers: Vec<&KeyValuePair> = self
-            .headers
-            .iter()
-            .filter(|o| !o.key.trim().is_empty() && !o.value.trim().is_empty())
-            .collect();
-        for index in 0..headers.len() {
-            let pair = headers[index];
+
+        // insert all headers
+        for index in 0..self.headers.len() {
+            let pair = self.headers[index].clone();
+            if pair.key.trim().is_empty() || pair.value.trim().is_empty() {
+                continue;
+            }
             request = request.header(pair.key.as_str(), pair.value.as_str());
         }
-        let body = self.body.clone();
-        request.body(body).send()
+
+        // insert all queries
+        for index in 0..self.queries.len() {
+            let pair = self.queries[index].clone();
+            if pair.key.trim().is_empty() || pair.value.trim().is_empty() {
+                continue;
+            }
+            request = request.query(&[(pair.key, pair.value)]);
+        }
+
+        request = request.body(self.body.clone());
+        request.send()
     }
 }

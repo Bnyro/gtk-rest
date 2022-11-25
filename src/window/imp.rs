@@ -77,7 +77,7 @@ impl Window {
             self.body.text().to_string(),
             self.method.selected(),
             self.header_pairs.take(),
-            self.header_pairs.take(),
+            self.query_pairs.take(),
         );
 
         let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);
@@ -158,6 +158,19 @@ impl Window {
         let child = kv_pair.build(&self.headers, Rc::new(on_change));
         self.headers.append(&child);
     }
+
+    pub fn create_query(&self) {
+        let on_change = clone!(@weak self as win => move |index, kvp| {
+            if win.query_pairs.borrow().len() < index + 1 {
+                win.query_pairs.borrow_mut().push(KeyValuePair::default());
+            }
+            win.query_pairs.borrow_mut()[index] = kvp;
+        });
+        let index = self.query_pairs.borrow().len();
+        let mut kv_pair = KvPair::new(index);
+        let child = kv_pair.build(&self.queries, Rc::new(on_change));
+        self.queries.append(&child);
+    }
 }
 // ANCHOR_END: template_callbacks
 
@@ -170,6 +183,12 @@ impl ObjectImpl for Window {
         let quit_action = SimpleAction::new("add_header", None);
         quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
             win.create_header();
+        }));
+        obj.add_action(&quit_action);
+
+        let quit_action = SimpleAction::new("add_query", None);
+        quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
+            win.create_query();
         }));
         obj.add_action(&quit_action);
 

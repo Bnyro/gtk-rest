@@ -21,7 +21,7 @@ pub struct Request {
     pub body: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct KeyValuePair {
     pub key: String,
     pub value: String,
