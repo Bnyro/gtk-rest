@@ -43,6 +43,7 @@ pub struct Window {
     #[template_child]
     pub response: TemplateChild<sourceview5::View>,
     pub header_pairs: RefCell<Vec<KeyValuePair>>,
+    pub query_pairs: RefCell<Vec<KeyValuePair>>,
 }
 // ANCHOR_END: object
 
@@ -75,6 +76,8 @@ impl Window {
             self.url.text().to_string(),
             self.body.text().to_string(),
             self.method.selected(),
+            self.header_pairs.take(),
+            self.header_pairs.take(),
         );
 
         let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);
@@ -144,11 +147,13 @@ impl Window {
 
     pub fn create_header(&self) {
         let on_change = clone!(@weak self as win => move |index, kvp| {
+            if win.header_pairs.borrow().len() < index + 1 {
+                win.header_pairs.borrow_mut().push(KeyValuePair::default());
+            }
             win.header_pairs.borrow_mut()[index] = kvp;
-            println!("pairs: {:?}", win.header_pairs.borrow())
+            println!("pairs: {:?}", win.header_pairs.borrow());
         });
         let index = self.header_pairs.borrow().len();
-        self.header_pairs.borrow_mut().push(KeyValuePair::default());
         let mut kv_pair = KvPair::new(index);
         let child = kv_pair.build(&self.headers, Rc::new(on_change));
         self.headers.append(&child);
