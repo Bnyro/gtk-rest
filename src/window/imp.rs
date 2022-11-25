@@ -13,6 +13,7 @@ use gtk::subclass::prelude::ObjectSubclassExt;
 use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
 use gtk::subclass::window::WindowImpl;
+use gtk::CheckButton;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
 use gtk::{prelude::*, Box, Button, Entry, HeaderBar};
 use sourceview5::traits::BufferExt;
@@ -34,6 +35,8 @@ pub struct Window {
     pub send: TemplateChild<Button>,
     #[template_child]
     pub method: TemplateChild<DropDown>,
+    #[template_child]
+    pub isjsonbody: TemplateChild<CheckButton>,
     #[template_child]
     pub body: TemplateChild<Entry>,
     #[template_child]
@@ -78,6 +81,7 @@ impl Window {
             self.method.selected(),
             self.header_pairs.take(),
             self.query_pairs.take(),
+            self.isjsonbody.is_active(),
         );
 
         let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);

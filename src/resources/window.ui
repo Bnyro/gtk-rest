@@ -88,9 +88,21 @@
                     <property name="name">body</property>
                     <property name="title" translatable="yes">Body</property>
                     <property name="child">
-                      <object class="GtkEntry" id="body">
+                      <object class="GtkBox">
                         <property name="margin-top">20</property>
                         <property name="margin-bottom">20</property>
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkCheckButton" id="isjsonbody">
+                            <property name="label">JSON</property>
+                            <property name="margin-end">15</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="body">
+                            <property name="hexpand">true</property>
+                          </object>
+                        </child>
                       </object>
                     </property>
                   </object>

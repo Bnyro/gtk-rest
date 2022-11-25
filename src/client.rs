@@ -8,6 +8,7 @@ pub struct Request {
     method: u32,
     headers: Vec<KeyValuePair>,
     queries: Vec<KeyValuePair>,
+    is_json_body: bool,
 }
 
 impl Request {
@@ -17,6 +18,7 @@ impl Request {
         method: u32,
         headers: Vec<KeyValuePair>,
         queries: Vec<KeyValuePair>,
+        is_json_body: bool,
     ) -> Self {
         Self {
             url,
@@ -24,6 +26,7 @@ impl Request {
             method,
             headers,
             queries,
+            is_json_body,
         }
     }
 
@@ -41,6 +44,10 @@ impl Request {
         };
 
         request = request.header("User-Agent", "Gtk-Rest/1.0");
+
+        if self.is_json_body {
+            request = request.header("Content-Type", "application/json");
+        }
 
         // insert all headers
         for index in 0..self.headers.len() {
