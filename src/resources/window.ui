@@ -34,7 +34,7 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
-                <property name="margin-bottom">20</property>
+                <property name="margin-bottom">40</property>
                 <child>
                   <object class="GtkDropDown" id="workspaces">
                     <property name="model">
@@ -59,6 +59,7 @@
                     <property name="model">
                       <object class="GtkStringList" id="requests_model" />
                     </property>
+                    <property name="margin-start">30</property>
                   </object>
                 </child>
                 <child>
@@ -97,7 +98,7 @@
                 <child>
                   <object class="GtkEntry" id="url">
                     <property name="margin-start">10</property>
-                    <property name="text">http://alpine.fritz.box:443</property>
+                    <property name="text">https://httpbin.org/anything</property>
                     <property name="placeholder-text">http://example.com/api</property>
                     <property name="hexpand">true</property>
                   </object>

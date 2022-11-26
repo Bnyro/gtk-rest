@@ -99,8 +99,8 @@ impl Window {
             self.url.text().to_string(),
             self.body.text().to_string(),
             self.method.selected(),
-            self.header_pairs.take(),
-            self.query_pairs.take(),
+            self.header_pairs.clone().take(),
+            self.query_pairs.clone().take(),
             self.isjsonbody.is_active(),
         );
 
