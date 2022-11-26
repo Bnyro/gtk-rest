@@ -198,22 +198,24 @@ impl Window {
         let mut request = preferences::Request::default();
         request.name = String::from("Default");
         workspace.requests.push(request);
-        self.load_workspace(&workspace);
 
         // save to the settings
-        prefs.workspaces.push(workspace);
+        prefs.workspaces.push(workspace.clone());
         crate::preferences::utils::save_prefs(&prefs);
+
+        // load the new workspace
+        self.load_workspace(&workspace);
     }
 
-    pub fn add_request(&self, workspace_name: String) {
-        let size = self.workspaces_model.n_items();
+    pub fn add_request(&self, request_name: String) {
+        let size = self.requests_model.n_items();
         for i in 0..size {
-            let str = self.workspaces_model.string(i);
-            if str.is_some() && str.unwrap() == workspace_name {
+            let str = self.requests_model.string(i);
+            if str.is_some() && str.unwrap() == request_name {
                 return;
             }
         }
-        self.workspaces_model.append(workspace_name.as_str());
+        self.requests_model.append(request_name.as_str());
         let request = preferences::Request::default();
         self.load_request(&request);
     }
@@ -356,7 +358,11 @@ impl ObjectImpl for Window {
         self.requests
             .connect_selected_item_notify(clone!(@weak self as win => move |_| {
                 let workspace = get_prefs().workspaces[win.workspaces.selected() as usize].clone();
-                let request = workspace.requests[win.requests.selected() as usize].clone();
+                let mut request = preferences::Request::default();
+                let index = win.requests.selected() as usize;
+                if workspace.requests.len() > index {
+                    request = workspace.requests[index].clone();
+                }
                 win.load_request(&request);
             }));
 
