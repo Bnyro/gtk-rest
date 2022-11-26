@@ -34,6 +34,31 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
+                <property name="margin-bottom">20</property>
+                <child>
+                  <object class="GtkDropDown" id="workspaces">
+                    <property name="model">
+                      <object class="GtkStringList" id="workspaces_model" />
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="new_workspace_name">
+                    <property name="placeholder-text">Workspace name</property>
+                    <property name="margin-start">10</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="create_workspace">
+                    <property name="label">Create</property>
+                    <property name="margin-start">10</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkDropDown" id="method">
                     <property name="model">

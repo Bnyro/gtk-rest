@@ -14,6 +14,7 @@ use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
 use gtk::subclass::window::WindowImpl;
 use gtk::CheckButton;
+use gtk::StringList;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
 use gtk::{prelude::*, Box, Button, Entry, HeaderBar};
 use sourceview5::traits::BufferExt;
@@ -29,6 +30,14 @@ use crate::preferences::KeyValuePair;
 pub struct Window {
     #[template_child]
     pub headerbar: TemplateChild<HeaderBar>,
+    #[template_child]
+    pub workspaces: TemplateChild<DropDown>,
+    #[template_child]
+    pub workspaces_model: TemplateChild<StringList>,
+    #[template_child]
+    pub new_workspace_name: TemplateChild<Entry>,
+    #[template_child]
+    pub create_workspace: TemplateChild<Button>,
     #[template_child]
     pub url: TemplateChild<Entry>,
     #[template_child]
@@ -170,6 +179,17 @@ impl Window {
         let child = kv_pair.build(&self.queries, Rc::new(on_change));
         self.queries.append(&child);
     }
+
+    pub fn add_workspace(&self, workspace_name: String) {
+        let size = self.workspaces_model.n_items();
+        for i in 0..size {
+            let str = self.workspaces_model.string(i);
+            if str.is_some() && str.unwrap() == workspace_name {
+                return;
+            }
+        }
+        self.workspaces_model.append(workspace_name.as_str());
+    }
 }
 // ANCHOR_END: template_callbacks
 
@@ -192,6 +212,15 @@ impl ObjectImpl for Window {
         obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
+
+        self.create_workspace
+            .connect_clicked(clone!(@weak self as win => move |_button| {
+                let text = win.new_workspace_name.text();
+                if !text.trim().is_empty() {
+                    win.add_workspace(text.to_string());
+                    win.new_workspace_name.set_text("");
+                }
+            }));
     }
 }
 
