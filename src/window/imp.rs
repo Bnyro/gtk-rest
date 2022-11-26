@@ -22,6 +22,7 @@ use sourceview5::traits::BufferExt;
 use crate::client::Request;
 use crate::kvpair::KvPair;
 use crate::preferences;
+use crate::preferences::utils::get_prefs;
 use crate::preferences::KeyValuePair;
 use crate::utils::format_json_string;
 
@@ -191,12 +192,17 @@ impl Window {
                 return;
             }
         }
+        let mut prefs = crate::preferences::utils::get_prefs();
         self.workspaces_model.append(workspace_name.as_str());
         let mut workspace = preferences::Workspace::default();
         let mut request = preferences::Request::default();
         request.name = String::from("Default");
         workspace.requests.push(request);
-        self.load_workspace(workspace);
+        self.load_workspace(&workspace);
+
+        // save to the settings
+        prefs.workspaces.push(workspace);
+        crate::preferences::utils::save_prefs(&prefs);
     }
 
     pub fn add_request(&self, workspace_name: String) {
@@ -213,6 +219,8 @@ impl Window {
     }
 
     pub fn load_request(&self, request: &preferences::Request) {
+        self.save_request();
+
         self.body.set_text(request.body.as_str());
         self.set_response_text(request.response.clone(), Some(request.content_type.clone()));
 
@@ -236,7 +244,7 @@ impl Window {
         }
     }
 
-    pub fn load_workspace(&self, workspace: preferences::Workspace) {
+    pub fn load_workspace(&self, workspace: &preferences::Workspace) {
         for i in 0..self.requests_model.n_items() {
             self.requests_model.remove(i);
         }
@@ -244,6 +252,54 @@ impl Window {
             self.requests_model.append(&workspace.requests[i].name);
         }
         self.load_request(&workspace.requests[0]);
+    }
+
+    pub fn get_request(&self) -> preferences::Request {
+        let mut request = preferences::Request::default();
+        request.headers = self.header_pairs.clone().take();
+        request.queries = self.query_pairs.clone().take();
+        request.body = self.body.text().clone().to_string();
+        request.content_type = String::from("application/json");
+        request.target_url = self.url.text().to_string();
+        let request_name = self.requests_model.string(self.requests.selected());
+        if request_name.is_some() {
+            request.name = request_name.unwrap().to_string();
+        }
+        request.method = self.method.selected();
+        request
+    }
+
+    pub fn save_request(&self) {
+        let mut prefs = crate::preferences::utils::get_prefs();
+
+        let current_workspace = self.workspaces.selected() as usize;
+
+        let request = self.get_request();
+
+        let current_request_index = self.requests.selected() as usize;
+
+        if current_request_index >= prefs.workspaces[current_workspace].requests.len() {
+            prefs.workspaces[current_workspace].requests.push(request);
+        } else {
+            prefs.workspaces[current_workspace].requests[current_request_index] = request;
+        }
+
+        crate::preferences::utils::save_prefs(&prefs);
+    }
+
+    pub fn load_prefs(&self) {
+        let prefs = crate::preferences::utils::get_prefs();
+
+        for i in 0..self.workspaces_model.n_items() {
+            self.workspaces_model.remove(i);
+        }
+        for i in 0..prefs.workspaces.len() {
+            self.workspaces_model.append(&prefs.workspaces[i].name);
+        }
+
+        if prefs.workspaces.len() > 0 {
+            self.load_workspace(&prefs.workspaces[0]);
+        }
     }
 }
 // ANCHOR_END: template_callbacks
@@ -291,6 +347,20 @@ impl ObjectImpl for Window {
                     win.new_request_name.set_text("");
                 }
             }));
+
+        self.requests
+            .connect_activate(clone!(@weak self as win => move |_| {
+                win.save_request();
+            }));
+
+        self.requests
+            .connect_selected_item_notify(clone!(@weak self as win => move |_| {
+                let workspace = get_prefs().workspaces[win.workspaces.selected() as usize].clone();
+                let request = workspace.requests[win.requests.selected() as usize].clone();
+                win.load_request(&request);
+            }));
+
+        self.load_prefs();
     }
 }
 

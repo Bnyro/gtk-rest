@@ -1,4 +1,4 @@
-mod utils;
+pub(crate) mod utils;
 
 use serde::{Deserialize, Serialize};
 
@@ -7,13 +7,13 @@ pub struct Preferences {
     pub workspaces: Vec<Workspace>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Workspace {
     pub name: String,
     pub requests: Vec<Request>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Request {
     pub name: String,
     pub target_url: String,
