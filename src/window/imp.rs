@@ -125,17 +125,12 @@ impl Window {
         buffer.set_text(text.as_str());
 
         if let Some(content_type) = content_type {
-            let language = sourceview5::LanguageManager::new()
+            let language = sourceview5::LanguageManager::default()
                 .guess_language(None::<String>, Some(content_type.as_str()));
 
             buffer.set_language(language.as_ref());
 
             if content_type.contains("json") {
-                buffer.set_language(
-                    sourceview5::LanguageManager::new()
-                        .language("json")
-                        .as_ref(),
-                );
                 let object: serde_json::Value = serde_json::from_str(text.as_str()).unwrap();
                 let text = serde_json::to_string_pretty(&object).unwrap();
                 buffer.set_text(text.as_str());
