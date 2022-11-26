@@ -147,6 +147,12 @@
                             <property name="hexpand">true</property>
                           </object>
                         </child>
+                        <child>
+                          <object class="GtkButton" id="format_body">
+                            <property name="label">Format</property>
+                            <property name="margin-start">10</property>
+                          </object>
+                        </child>
                       </object>
                     </property>
                   </object>

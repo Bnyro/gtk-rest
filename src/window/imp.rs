@@ -22,6 +22,7 @@ use sourceview5::traits::BufferExt;
 use crate::client::Request;
 use crate::kvpair::KvPair;
 use crate::preferences::KeyValuePair;
+use crate::utils::format_json_string;
 
 // ANCHOR: object
 // Object holding the state
@@ -56,6 +57,8 @@ pub struct Window {
     pub isjsonbody: TemplateChild<CheckButton>,
     #[template_child]
     pub body: TemplateChild<Entry>,
+    #[template_child]
+    pub format_body: TemplateChild<Button>,
     #[template_child]
     pub headers: TemplateChild<Box>,
     #[template_child]
@@ -148,9 +151,7 @@ impl Window {
             buffer.set_language(language.as_ref());
 
             if content_type.contains("json") {
-                let object: serde_json::Value = serde_json::from_str(text.as_str()).unwrap();
-                let text = serde_json::to_string_pretty(&object).unwrap();
-                buffer.set_text(text.as_str());
+                buffer.set_text(&format_json_string(text));
             }
         }
 
@@ -231,6 +232,12 @@ impl ObjectImpl for Window {
         obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
+
+        self.format_body
+            .connect_clicked(clone!(@weak self as win => move |_btn| {
+                let formatted_text = format_json_string(win.body.text().to_string());
+                win.body.set_text(formatted_text.as_str());
+            }));
 
         self.create_workspace
             .connect_clicked(clone!(@weak self as win => move |_button| {
