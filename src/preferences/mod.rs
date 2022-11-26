@@ -1,3 +1,5 @@
+mod utils;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -15,10 +17,12 @@ pub struct Workspace {
 pub struct Request {
     pub name: String,
     pub target_url: String,
-    pub method: String,
+    pub method: u32,
     pub headers: Vec<KeyValuePair>,
     pub queries: Vec<KeyValuePair>,
     pub body: String,
+    pub response: String,
+    pub content_type: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]

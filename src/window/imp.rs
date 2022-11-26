@@ -21,6 +21,7 @@ use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
 use crate::kvpair::KvPair;
+use crate::preferences;
 use crate::preferences::KeyValuePair;
 use crate::utils::format_json_string;
 
@@ -160,11 +161,9 @@ impl Window {
         self.response.set_buffer(Some(&buffer));
     }
 
-    pub fn create_header(&self) {
+    pub fn create_header(&self, pair: KeyValuePair) {
+        self.header_pairs.borrow_mut().push(pair);
         let on_change = clone!(@weak self as win => move |index, kvp| {
-            if win.header_pairs.borrow().len() < index + 1 {
-                win.header_pairs.borrow_mut().push(KeyValuePair::default());
-            }
             win.header_pairs.borrow_mut()[index] = kvp;
         });
         let index = self.header_pairs.borrow().len();
@@ -173,11 +172,9 @@ impl Window {
         self.headers.append(&child);
     }
 
-    pub fn create_query(&self) {
+    pub fn create_query(&self, pair: KeyValuePair) {
+        self.query_pairs.borrow_mut().push(pair);
         let on_change = clone!(@weak self as win => move |index, kvp| {
-            if win.query_pairs.borrow().len() < index + 1 {
-                win.query_pairs.borrow_mut().push(KeyValuePair::default());
-            }
             win.query_pairs.borrow_mut()[index] = kvp;
         });
         let index = self.query_pairs.borrow().len();
@@ -195,6 +192,11 @@ impl Window {
             }
         }
         self.workspaces_model.append(workspace_name.as_str());
+        let mut workspace = preferences::Workspace::default();
+        let mut request = preferences::Request::default();
+        request.name = String::from("Default");
+        workspace.requests.push(request);
+        self.load_workspace(workspace);
     }
 
     pub fn add_request(&self, workspace_name: String) {
@@ -206,6 +208,42 @@ impl Window {
             }
         }
         self.workspaces_model.append(workspace_name.as_str());
+        let request = preferences::Request::default();
+        self.load_request(&request);
+    }
+
+    pub fn load_request(&self, request: &preferences::Request) {
+        self.body.set_text(request.body.as_str());
+        self.set_response_text(request.response.clone(), Some(request.content_type.clone()));
+
+        self.url.set_text(request.target_url.as_str());
+        self.method.set_selected(request.method);
+
+        // remove all headers in the UI
+        while let Some(child) = self.headers.first_child() {
+            self.headers.remove(&child);
+        }
+        for i in 0..request.headers.len() {
+            self.create_header(request.headers[i].clone());
+        }
+
+        // remove all queries in the UI
+        while let Some(child) = self.queries.first_child() {
+            self.queries.remove(&child);
+        }
+        for i in 0..request.queries.len() {
+            self.create_query(request.queries[i].clone());
+        }
+    }
+
+    pub fn load_workspace(&self, workspace: preferences::Workspace) {
+        for i in 0..self.requests_model.n_items() {
+            self.requests_model.remove(i);
+        }
+        for i in 0..workspace.requests.len() {
+            self.requests_model.append(&workspace.requests[i].name);
+        }
+        self.load_request(&workspace.requests[0]);
     }
 }
 // ANCHOR_END: template_callbacks
@@ -218,13 +256,13 @@ impl ObjectImpl for Window {
         let obj = self.obj();
         let quit_action = SimpleAction::new("add_header", None);
         quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
-            win.create_header();
+            win.create_header(KeyValuePair::default());
         }));
         obj.add_action(&quit_action);
 
         let quit_action = SimpleAction::new("add_query", None);
         quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
-            win.create_query();
+            win.create_query(KeyValuePair::default());
         }));
         obj.add_action(&quit_action);
 
