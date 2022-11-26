@@ -137,8 +137,6 @@ impl Window {
 
 impl Window {
     pub fn set_response_text(&self, text: String, content_type: Option<String>) {
-        println!("{:#?}", text);
-        println!("{:#?}", content_type);
         let buffer = sourceview5::Buffer::new(None);
         buffer.set_highlight_syntax(true);
         buffer.set_highlight_matching_brackets(true);
@@ -168,7 +166,6 @@ impl Window {
                 win.header_pairs.borrow_mut().push(KeyValuePair::default());
             }
             win.header_pairs.borrow_mut()[index] = kvp;
-            println!("pairs: {:?}", win.header_pairs.borrow());
         });
         let index = self.header_pairs.borrow().len();
         let mut kv_pair = KvPair::new(index);
