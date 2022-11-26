@@ -54,6 +54,25 @@
                     <property name="margin-start">10</property>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkDropDown" id="requests">
+                    <property name="model">
+                      <object class="GtkStringList" id="requests_model" />
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="new_request_name">
+                    <property name="placeholder-text">Request name</property>
+                    <property name="margin-start">10</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="create_request">
+                    <property name="label">Create</property>
+                    <property name="margin-start">10</property>
+                  </object>
+                </child>
               </object>
             </child>
             <child>

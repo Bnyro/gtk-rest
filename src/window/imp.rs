@@ -39,6 +39,14 @@ pub struct Window {
     #[template_child]
     pub create_workspace: TemplateChild<Button>,
     #[template_child]
+    pub requests: TemplateChild<DropDown>,
+    #[template_child]
+    pub requests_model: TemplateChild<StringList>,
+    #[template_child]
+    pub new_request_name: TemplateChild<Entry>,
+    #[template_child]
+    pub create_request: TemplateChild<Button>,
+    #[template_child]
     pub url: TemplateChild<Entry>,
     #[template_child]
     pub send: TemplateChild<Button>,
@@ -190,6 +198,17 @@ impl Window {
         }
         self.workspaces_model.append(workspace_name.as_str());
     }
+
+    pub fn add_request(&self, workspace_name: String) {
+        let size = self.workspaces_model.n_items();
+        for i in 0..size {
+            let str = self.workspaces_model.string(i);
+            if str.is_some() && str.unwrap() == workspace_name {
+                return;
+            }
+        }
+        self.workspaces_model.append(workspace_name.as_str());
+    }
 }
 // ANCHOR_END: template_callbacks
 
@@ -219,6 +238,15 @@ impl ObjectImpl for Window {
                 if !text.trim().is_empty() {
                     win.add_workspace(text.to_string());
                     win.new_workspace_name.set_text("");
+                }
+            }));
+
+        self.create_request
+            .connect_clicked(clone!(@weak self as win => move |_button| {
+                let text = win.new_request_name.text();
+                if !text.trim().is_empty() {
+                    win.add_request(text.to_string());
+                    win.new_request_name.set_text("");
                 }
             }));
     }
