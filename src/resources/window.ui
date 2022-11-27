@@ -12,9 +12,9 @@
         <child>
           <object class="GtkHeaderBar" id="headerbar">
             <child type="start">
-              <object class="GtkMenuButton">
-                <property name="icon-name">list-add-symbolic</property>
-                <property name="menu-model">create_menu</property>
+              <object class="GtkButton">
+                <signal name="clicked" handler="handle_save" swapped="true" />
+                <property name="icon-name">document-save-symbolic</property>
               </object>
             </child>
             <child type="end">
@@ -140,12 +140,6 @@
                         <property name="margin-bottom">20</property>
                         <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkCheckButton" id="isjsonbody">
-                            <property name="label">JSON</property>
-                            <property name="margin-end">15</property>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkEntry" id="body">
                             <property name="hexpand">true</property>
                           </object>
@@ -255,26 +249,6 @@
       <item>
         <attribute name="label" translatable="yes">_About Gtk-rest</attribute>
         <attribute name="action">app.about</attribute>
-      </item>
-    </section>
-  </menu>
-  <menu id="create_menu">
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">_Create Workspace</attribute>
-        <attribute name="action">win.create_workspace</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">_Create Request</attribute>
-        <attribute name="action">win.create_request</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">_Add header</attribute>
-        <attribute name="action">win.add_header</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">_Add query</attribute>
-        <attribute name="action">win.add_query</attribute>
       </item>
     </section>
   </menu>

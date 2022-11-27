@@ -4,16 +4,14 @@ use std::rc::Rc;
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
 use glib::subclass::InitializingObject;
-use gtk::gio::SimpleAction;
 use gtk::glib::clone;
 use gtk::glib::MainContext;
 use gtk::glib::PRIORITY_DEFAULT;
 use gtk::subclass::prelude::ObjectImplExt;
-use gtk::subclass::prelude::ObjectSubclassExt;
 use gtk::subclass::prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass};
 use gtk::subclass::widget::{CompositeTemplateCallbacksClass, CompositeTemplateClass, WidgetImpl};
 use gtk::subclass::window::WindowImpl;
-use gtk::CheckButton;
+use gtk::MenuButton;
 use gtk::StringList;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
 use gtk::{prelude::*, Box, Button, Entry, HeaderBar};
@@ -49,8 +47,6 @@ pub struct Window {
     pub url: TemplateChild<Entry>,
     #[template_child]
     pub method: TemplateChild<DropDown>,
-    #[template_child]
-    pub isjsonbody: TemplateChild<CheckButton>,
     #[template_child]
     pub body: TemplateChild<Entry>,
     #[template_child]
@@ -95,7 +91,6 @@ impl Window {
             self.method.selected(),
             self.header_pairs.clone().take(),
             self.query_pairs.clone().take(),
-            self.isjsonbody.is_active(),
         );
 
         self.save_request();
@@ -169,6 +164,11 @@ impl Window {
     #[template_callback]
     fn handle_add_query(&self, _button: &Button) {
         self.create_query(&KeyValuePair::default());
+    }
+
+    #[template_callback]
+    fn handle_save(&self, _button: &MenuButton) {
+        self.save_request();
     }
 }
 
@@ -377,19 +377,6 @@ impl Window {
 impl ObjectImpl for Window {
     fn constructed(&self) {
         self.parent_constructed();
-
-        let obj = self.obj();
-        let quit_action = SimpleAction::new("add_header", None);
-        quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
-            win.create_header(KeyValuePair::default());
-        }));
-        obj.add_action(&quit_action);
-
-        let quit_action = SimpleAction::new("add_query", None);
-        quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
-            win.create_query(&KeyValuePair::default());
-        }));
-        obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
 
