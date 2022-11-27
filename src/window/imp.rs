@@ -100,7 +100,7 @@ impl ObjectSubclass for Window {
 #[gtk::template_callbacks]
 impl Window {
     #[template_callback]
-    fn handle_send(&self, _button: &gtk::Button) {
+    fn handle_send(&self, _button: &Button) {
         let request = Request::new(
             self.url.text().to_string(),
             self.body.text().to_string(),
@@ -140,6 +140,47 @@ impl Window {
                 }
             ),
         );
+    }
+    #[template_callback]
+    fn handle_create_workspace(&self, _button: &Button) {
+        let text = self.new_workspace_name.text();
+        if !text.trim().is_empty() {
+            self.add_workspace(text.to_string());
+            self.new_workspace_name.set_text("");
+        }
+    }
+
+    #[template_callback]
+    fn handle_create_request(&self, _button: &Button) {
+        let text = self.new_request_name.text();
+        if text.trim().is_empty() {
+            return;
+        };
+
+        // create the new request
+        self.add_request(text.to_string());
+        self.new_request_name.set_text("");
+    }
+
+    #[template_callback]
+    fn handle_format_body(&self, _button: &Button) {
+        let formatted_text = format_json_string(self.body.text().to_string());
+        self.body.set_text(formatted_text.as_str());
+    }
+
+    #[template_callback]
+    fn handle_create_query(&self, _button: &Button) {
+        self.create_query(&KeyValuePair::default());
+    }
+
+    #[template_callback]
+    fn handle_add_header(&self, _button: &Button) {
+        self.create_header(KeyValuePair::default());
+    }
+
+    #[template_callback]
+    fn handle_add_query(&self, _button: &Button) {
+        self.create_query(&KeyValuePair::default());
     }
 }
 
@@ -363,41 +404,6 @@ impl ObjectImpl for Window {
         obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
-
-        self.add_header
-            .connect_clicked(clone!(@weak self as win => move |_| {
-                win.create_header(KeyValuePair::default());
-            }));
-
-        self.add_query
-            .connect_clicked(clone!(@weak self as win => move |_| {
-                win.create_query(&KeyValuePair::default());
-            }));
-
-        self.format_body
-            .connect_clicked(clone!(@weak self as win => move |_btn| {
-                let formatted_text = format_json_string(win.body.text().to_string());
-                win.body.set_text(formatted_text.as_str());
-            }));
-
-        self.create_workspace
-            .connect_clicked(clone!(@weak self as win => move |_button| {
-                let text = win.new_workspace_name.text();
-                if !text.trim().is_empty() {
-                    win.add_workspace(text.to_string());
-                    win.new_workspace_name.set_text("");
-                }
-            }));
-
-        self.create_request
-            .connect_clicked(clone!(@weak self as win => move |_button| {
-                let text = win.new_request_name.text();
-                if text.trim().is_empty() { return };
-
-                // create the new request
-                win.add_request(text.to_string());
-                win.new_request_name.set_text("");
-            }));
 
         self.workspaces
             .connect_activate(clone!(@weak self as win => move |_| {
