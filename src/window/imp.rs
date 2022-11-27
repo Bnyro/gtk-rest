@@ -170,22 +170,22 @@ impl Window {
 
     pub fn create_header(&self, pair: KeyValuePair) {
         let index = self.header_pairs.borrow().len();
-        self.header_pairs.borrow_mut().push(pair);
+        self.header_pairs.borrow_mut().push(pair.clone());
         let on_change = clone!(@weak self as win => move |index, kvp| {
             win.header_pairs.borrow_mut()[index] = kvp;
         });
-        let mut kv_pair = KvPair::new(index);
+        let mut kv_pair = KvPair::new(index, pair);
         let child = kv_pair.build(&self.headers, Rc::new(on_change));
         self.headers.append(&child);
     }
 
-    pub fn create_query(&self, pair: KeyValuePair) {
+    pub fn create_query(&self, pair: &KeyValuePair) {
         let index = self.query_pairs.borrow().len();
-        self.query_pairs.borrow_mut().push(pair);
+        self.query_pairs.borrow_mut().push(pair.clone());
         let on_change = clone!(@weak self as win => move |index, kvp| {
             win.query_pairs.borrow_mut()[index] = kvp;
         });
-        let mut kv_pair = KvPair::new(index);
+        let mut kv_pair = KvPair::new(index, pair.clone());
         let child = kv_pair.build(&self.queries, Rc::new(on_change));
         self.queries.append(&child);
     }
@@ -268,7 +268,7 @@ impl Window {
         self.query_pairs.borrow_mut().clear();
 
         for i in 0..request.queries.len() {
-            self.create_query(request.queries[i].clone());
+            self.create_query(&request.queries[i].clone());
         }
     }
 
@@ -283,7 +283,6 @@ impl Window {
                 .append(workspace.requests[i].name.as_str());
         }
 
-        println!("request {:?}", workspace.requests[0]);
         self.load_request(&workspace.requests[0]);
     }
 
@@ -359,7 +358,7 @@ impl ObjectImpl for Window {
 
         let quit_action = SimpleAction::new("add_query", None);
         quit_action.connect_activate(clone!(@weak self as win => move |_, _| {
-            win.create_query(KeyValuePair::default());
+            win.create_query(&KeyValuePair::default());
         }));
         obj.add_action(&quit_action);
 
@@ -372,7 +371,7 @@ impl ObjectImpl for Window {
 
         self.add_query
             .connect_clicked(clone!(@weak self as win => move |_| {
-                win.create_query(KeyValuePair::default());
+                win.create_query(&KeyValuePair::default());
             }));
 
         self.format_body

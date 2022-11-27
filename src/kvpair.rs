@@ -10,11 +10,12 @@ use crate::preferences::KeyValuePair;
 
 pub struct KvPair {
     index: usize,
+    pair: KeyValuePair,
 }
 
 impl KvPair {
-    pub fn new(index: usize) -> Self {
-        Self { index }
+    pub fn new(index: usize, pair: KeyValuePair) -> Self {
+        Self { index, pair }
     }
 
     pub fn build(
@@ -26,7 +27,9 @@ impl KvPair {
         container.set_margin_top(5);
         container.set_margin_bottom(5);
         let key = gtk::Entry::new();
+        key.set_text(self.pair.key.as_str());
         let value = gtk::Entry::new();
+        value.set_text(self.pair.value.as_str());
         value.set_hexpand(true);
         let index = self.index;
         let x = on_change.clone();
