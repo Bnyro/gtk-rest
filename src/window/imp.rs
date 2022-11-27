@@ -14,7 +14,7 @@ use gtk::subclass::window::WindowImpl;
 use gtk::MenuButton;
 use gtk::StringList;
 use gtk::{glib, CompositeTemplate, DropDown, TemplateChild};
-use gtk::{prelude::*, Box, Button, Entry, HeaderBar};
+use gtk::{prelude::*, Box, Button, Entry};
 use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
@@ -29,8 +29,6 @@ use crate::utils::format_json_string;
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/com/bnyro/rest/window.ui")]
 pub struct Window {
-    #[template_child]
-    pub headerbar: TemplateChild<HeaderBar>,
     #[template_child]
     pub workspaces: TemplateChild<DropDown>,
     #[template_child]
@@ -48,7 +46,7 @@ pub struct Window {
     #[template_child]
     pub method: TemplateChild<DropDown>,
     #[template_child]
-    pub body: TemplateChild<Entry>,
+    pub body: TemplateChild<sourceview5::View>,
     #[template_child]
     pub headers: TemplateChild<Box>,
     #[template_child]
@@ -87,7 +85,7 @@ impl Window {
     fn handle_send(&self, _button: &Button) {
         let request = Request::new(
             self.url.text().to_string(),
-            self.body.text().to_string(),
+            self.get_body_text(),
             self.method.selected(),
             self.header_pairs.clone().take(),
             self.query_pairs.clone().take(),
@@ -147,8 +145,8 @@ impl Window {
 
     #[template_callback]
     fn handle_format_body(&self, _button: &Button) {
-        let formatted_text = format_json_string(self.body.text().to_string());
-        self.body.set_text(formatted_text.as_str());
+        let formatted_text = format_json_string(self.get_body_text());
+        self.body.buffer().set_text(formatted_text.as_str());
     }
 
     #[template_callback]
@@ -275,7 +273,7 @@ impl Window {
     pub fn load_request(&self, request: &preferences::Request) {
         self.save_request();
 
-        self.body.set_text(request.body.as_str());
+        self.body.buffer().set_text(request.body.as_str());
 
         self.url.set_text(request.target_url.as_str());
         self.method.set_selected(request.method);
@@ -319,7 +317,7 @@ impl Window {
         let mut request = preferences::Request::default();
         request.headers = self.header_pairs.clone().take();
         request.queries = self.query_pairs.clone().take();
-        request.body = self.body.text().clone().to_string();
+        request.body = self.get_body_text();
         request.target_url = self.url.text().to_string();
         let request_name = self.requests_model.string(self.requests.selected());
         if request_name.is_some() {
@@ -370,6 +368,26 @@ impl Window {
             self.load_workspace(&prefs.workspaces[0]);
         }
     }
+
+    pub fn init_body(&self) {
+        let buffer = sourceview5::Buffer::new(None);
+        let language = sourceview5::LanguageManager::new().language("json");
+        buffer.set_highlight_syntax(true);
+        buffer.set_highlight_matching_brackets(true);
+        buffer.set_language(language.as_ref());
+        if let Some(ref scheme) = sourceview5::StyleSchemeManager::new().scheme("classic-dark") {
+            buffer.set_style_scheme(Some(scheme));
+        }
+        self.body.set_buffer(Some(&buffer));
+    }
+
+    pub fn get_body_text(&self) -> String {
+        let buffer = self.body.buffer();
+        buffer
+            .text(&buffer.start_iter(), &buffer.end_iter(), false)
+            .as_str()
+            .to_string()
+    }
 }
 // ANCHOR_END: template_callbacks
 
@@ -408,6 +426,8 @@ impl ObjectImpl for Window {
                 }
                 win.load_request(&request);
             }));
+
+        self.init_body();
 
         self.load_prefs();
     }

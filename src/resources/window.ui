@@ -140,8 +140,16 @@
                         <property name="margin-bottom">20</property>
                         <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkEntry" id="body">
+                          <object class="GtkSourceView" id="body">
                             <property name="hexpand">true</property>
+                            <property name="wrap-mode">word</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="monospace">True</property>
+                            <property name="left-margin">12</property>
+                            <property name="top-margin">12</property>
+                            <property name="bottom-margin">12</property>
+                            <property name="right-margin">12</property>
                           </object>
                         </child>
                         <child>
