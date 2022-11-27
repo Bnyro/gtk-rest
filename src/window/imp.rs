@@ -40,19 +40,13 @@ pub struct Window {
     #[template_child]
     pub new_workspace_name: TemplateChild<Entry>,
     #[template_child]
-    pub create_workspace: TemplateChild<Button>,
-    #[template_child]
     pub requests: TemplateChild<DropDown>,
     #[template_child]
     pub requests_model: TemplateChild<StringList>,
     #[template_child]
     pub new_request_name: TemplateChild<Entry>,
     #[template_child]
-    pub create_request: TemplateChild<Button>,
-    #[template_child]
     pub url: TemplateChild<Entry>,
-    #[template_child]
-    pub send: TemplateChild<Button>,
     #[template_child]
     pub method: TemplateChild<DropDown>,
     #[template_child]
@@ -60,15 +54,9 @@ pub struct Window {
     #[template_child]
     pub body: TemplateChild<Entry>,
     #[template_child]
-    pub format_body: TemplateChild<Button>,
-    #[template_child]
     pub headers: TemplateChild<Box>,
     #[template_child]
-    pub add_header: TemplateChild<Button>,
-    #[template_child]
     pub queries: TemplateChild<Box>,
-    #[template_child]
-    pub add_query: TemplateChild<Button>,
     #[template_child]
     pub response: TemplateChild<sourceview5::View>,
     pub header_pairs: RefCell<Vec<KeyValuePair>>,

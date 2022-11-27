@@ -70,7 +70,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="create_request">
+                  <object class="GtkButton">
                     <signal name="clicked" handler="handle_create_request" swapped="true" />
                     <property name="label">Create</property>
                     <property name="margin-start">10</property>
@@ -106,7 +106,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="send">
+                  <object class="GtkButton">
                     <signal name="clicked" handler="handle_send" swapped="true" />
                     <property name="label">Send</property>
                     <property name="margin-start">10</property>
@@ -151,7 +151,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton" id="format_body">
+                          <object class="GtkButton">
                             <signal name="clicked" handler="handle_format_body" swapped="true" />
                             <property name="label">Format</property>
                             <property name="margin-start">10</property>
@@ -176,7 +176,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton" id="add_header">
+                          <object class="GtkButton">
                             <signal name="clicked" handler="handle_add_header" swapped="true" />
                             <property name="label">Add header</property>
                             <property name="margin-top">10</property>
@@ -201,7 +201,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton" id="add_query">
+                          <object class="GtkButton">
                             <signal name="clicked" handler="handle_add_query" swapped="true" />
                             <property name="label">Add query</property>
                             <property name="margin-top">10</property>
