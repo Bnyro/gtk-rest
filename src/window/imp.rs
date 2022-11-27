@@ -64,7 +64,11 @@ pub struct Window {
     #[template_child]
     pub headers: TemplateChild<Box>,
     #[template_child]
+    pub add_header: TemplateChild<Button>,
+    #[template_child]
     pub queries: TemplateChild<Box>,
+    #[template_child]
+    pub add_query: TemplateChild<Button>,
     #[template_child]
     pub response: TemplateChild<sourceview5::View>,
     pub header_pairs: RefCell<Vec<KeyValuePair>>,
@@ -163,22 +167,22 @@ impl Window {
     }
 
     pub fn create_header(&self, pair: KeyValuePair) {
+        let index = self.header_pairs.borrow().len();
         self.header_pairs.borrow_mut().push(pair);
         let on_change = clone!(@weak self as win => move |index, kvp| {
             win.header_pairs.borrow_mut()[index] = kvp;
         });
-        let index = self.header_pairs.borrow().len();
         let mut kv_pair = KvPair::new(index);
         let child = kv_pair.build(&self.headers, Rc::new(on_change));
         self.headers.append(&child);
     }
 
     pub fn create_query(&self, pair: KeyValuePair) {
+        let index = self.query_pairs.borrow().len();
         self.query_pairs.borrow_mut().push(pair);
         let on_change = clone!(@weak self as win => move |index, kvp| {
             win.query_pairs.borrow_mut()[index] = kvp;
         });
-        let index = self.query_pairs.borrow().len();
         let mut kv_pair = KvPair::new(index);
         let child = kv_pair.build(&self.queries, Rc::new(on_change));
         self.queries.append(&child);
@@ -325,6 +329,16 @@ impl ObjectImpl for Window {
         obj.add_action(&quit_action);
 
         self.set_response_text(String::from(""), None::<String>);
+
+        self.add_header
+            .connect_clicked(clone!(@weak self as win => move |_| {
+                win.create_header(KeyValuePair::default());
+            }));
+
+        self.add_query
+            .connect_clicked(clone!(@weak self as win => move |_| {
+                win.create_query(KeyValuePair::default());
+            }));
 
         self.format_body
             .connect_clicked(clone!(@weak self as win => move |_btn| {

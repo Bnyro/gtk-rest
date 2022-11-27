@@ -163,10 +163,21 @@
                     <property name="name">headers</property>
                     <property name="title" translatable="yes">Headers</property>
                     <property name="child">
-                      <object class="GtkBox" id="headers">
-                        <property name="valign">start</property>
+                      <object class="GtkBox">
                         <property name="orientation">vertical</property>
-                        <property name="margin-top">10</property>
+                        <child>
+                          <object class="GtkBox" id="headers">
+                            <property name="valign">start</property>
+                            <property name="orientation">vertical</property>
+                            <property name="margin-top">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="add_header">
+                            <property name="label">Add header</property>
+                            <property name="margin-top">10</property>
+                          </object>
+                        </child>
                       </object>
                     </property>
                   </object>
@@ -176,10 +187,21 @@
                     <property name="name">queries</property>
                     <property name="title" translatable="yes">Queries</property>
                     <property name="child">
-                      <object class="GtkBox" id="queries">
-                        <property name="valign">start</property>
+                      <object class="GtkBox">
                         <property name="orientation">vertical</property>
-                        <property name="margin-top">10</property>
+                        <child>
+                          <object class="GtkBox" id="queries">
+                            <property name="valign">start</property>
+                            <property name="orientation">vertical</property>
+                            <property name="margin-top">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="add_query">
+                            <property name="label">Add query</property>
+                            <property name="margin-top">10</property>
+                          </object>
+                        </child>
                       </object>
                     </property>
                   </object>
