@@ -199,6 +199,7 @@ impl Window {
         let mut prefs = crate::preferences::utils::get_prefs();
         self.workspaces_model.append(workspace_name.as_str());
         let mut workspace = preferences::Workspace::default();
+        workspace.name = workspace_name;
         let mut request = preferences::Request::default();
         request.name = String::from("Default");
         workspace.requests.push(request);
@@ -207,11 +208,16 @@ impl Window {
         prefs.workspaces.push(workspace.clone());
         crate::preferences::utils::save_prefs(&prefs);
 
+        // select the newly created workspace
+        self.workspaces
+            .set_selected(self.workspaces_model.n_items() - 1);
+
         // load the new workspace
         self.load_workspace(&workspace);
     }
 
     pub fn add_request(&self, request_name: String) {
+        // check whether the request name already exists
         let size = self.requests_model.n_items();
         for i in 0..size {
             let str = self.requests_model.string(i);
@@ -219,16 +225,26 @@ impl Window {
                 return;
             }
         }
+
+        // create the new request
         self.requests_model.append(request_name.as_str());
-        let request = preferences::Request::default();
+        let mut request = preferences::Request::default();
+        request.name = request_name;
+
+        // load and save the new created request
         self.load_request(&request);
+
+        // select the newly created item in the requests list
+        self.requests
+            .set_selected(self.requests_model.n_items() - 1);
+
+        self.save_request();
     }
 
     pub fn load_request(&self, request: &preferences::Request) {
         self.save_request();
 
         self.body.set_text(request.body.as_str());
-        self.set_response_text(request.response.clone(), Some(request.content_type.clone()));
 
         self.url.set_text(request.target_url.as_str());
         self.method.set_selected(request.method);
@@ -251,12 +267,16 @@ impl Window {
     }
 
     pub fn load_workspace(&self, workspace: &preferences::Workspace) {
-        for i in 0..self.requests_model.n_items() {
-            self.requests_model.remove(i);
-        }
+        println!("load workspace {:?}", workspace);
+
+        self.requests_model
+            .splice(0, self.requests_model.n_items(), &[]);
+
         for i in 0..workspace.requests.len() {
-            self.requests_model.append(&workspace.requests[i].name);
+            self.requests_model
+                .append(workspace.requests[i].name.as_str());
         }
+
         self.load_request(&workspace.requests[0]);
     }
 
@@ -265,7 +285,6 @@ impl Window {
         request.headers = self.header_pairs.clone().take();
         request.queries = self.query_pairs.clone().take();
         request.body = self.body.text().clone().to_string();
-        request.content_type = String::from("application/json");
         request.target_url = self.url.text().to_string();
         let request_name = self.requests_model.string(self.requests.selected());
         if request_name.is_some() {
@@ -362,6 +381,17 @@ impl ObjectImpl for Window {
                     win.add_request(text.to_string());
                     win.new_request_name.set_text("");
                 }
+            }));
+
+        self.workspaces
+            .connect_activate(clone!(@weak self as win => move |_| {
+                win.save_request();
+            }));
+
+        self.workspaces
+            .connect_selected_item_notify(clone!(@weak self as win => move |_| {
+                let workspace = get_prefs().workspaces[win.workspaces.selected() as usize].clone();
+                win.load_workspace(&workspace);
             }));
 
         self.requests

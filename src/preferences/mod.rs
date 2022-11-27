@@ -21,8 +21,6 @@ pub struct Request {
     pub headers: Vec<KeyValuePair>,
     pub queries: Vec<KeyValuePair>,
     pub body: String,
-    pub response: String,
-    pub content_type: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
