@@ -110,6 +110,8 @@ impl Window {
             self.isjsonbody.is_active(),
         );
 
+        self.save_request();
+
         let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);
         let main_context = MainContext::default();
 
@@ -253,6 +255,8 @@ impl Window {
         while let Some(child) = self.headers.first_child() {
             self.headers.remove(&child);
         }
+        self.header_pairs.borrow_mut().clear();
+
         for i in 0..request.headers.len() {
             self.create_header(request.headers[i].clone());
         }
@@ -261,6 +265,8 @@ impl Window {
         while let Some(child) = self.queries.first_child() {
             self.queries.remove(&child);
         }
+        self.query_pairs.borrow_mut().clear();
+
         for i in 0..request.queries.len() {
             self.create_query(request.queries[i].clone());
         }
@@ -277,6 +283,7 @@ impl Window {
                 .append(workspace.requests[i].name.as_str());
         }
 
+        println!("request {:?}", workspace.requests[0]);
         self.load_request(&workspace.requests[0]);
     }
 
@@ -297,16 +304,25 @@ impl Window {
     pub fn save_request(&self) {
         let mut prefs = crate::preferences::utils::get_prefs();
 
-        let current_workspace = self.workspaces.selected() as usize;
+        let workspace_index = self.workspaces.selected() as usize;
 
-        let request = self.get_request();
+        let request = &self.get_request();
 
-        let current_request_index = self.requests.selected() as usize;
+        if request.name.trim().is_empty() {
+            return;
+        };
 
-        if current_request_index >= prefs.workspaces[current_workspace].requests.len() {
-            prefs.workspaces[current_workspace].requests.push(request);
-        } else {
-            prefs.workspaces[current_workspace].requests[current_request_index] = request;
+        let mut added = false;
+        for i in 0..prefs.workspaces[workspace_index].requests.len() {
+            if prefs.workspaces[workspace_index].requests[i].name == request.clone().name {
+                prefs.workspaces[workspace_index].requests[i] = request.clone();
+                added = true;
+            }
+        }
+        if !added {
+            prefs.workspaces[workspace_index]
+                .requests
+                .push(request.clone());
         }
 
         crate::preferences::utils::save_prefs(&prefs);
@@ -377,10 +393,11 @@ impl ObjectImpl for Window {
         self.create_request
             .connect_clicked(clone!(@weak self as win => move |_button| {
                 let text = win.new_request_name.text();
-                if !text.trim().is_empty() {
-                    win.add_request(text.to_string());
-                    win.new_request_name.set_text("");
-                }
+                if text.trim().is_empty() { return };
+
+                // create the new request
+                win.add_request(text.to_string());
+                win.new_request_name.set_text("");
             }));
 
         self.workspaces
@@ -390,7 +407,9 @@ impl ObjectImpl for Window {
 
         self.workspaces
             .connect_selected_item_notify(clone!(@weak self as win => move |_| {
-                let workspace = get_prefs().workspaces[win.workspaces.selected() as usize].clone();
+                let prefs = get_prefs();
+                if prefs.workspaces.is_empty() { return };
+                let workspace = prefs.workspaces[win.workspaces.selected() as usize].clone();
                 win.load_workspace(&workspace);
             }));
 

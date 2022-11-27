@@ -2,7 +2,7 @@ pub(crate) mod utils;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Preferences {
     pub workspaces: Vec<Workspace>,
 }
