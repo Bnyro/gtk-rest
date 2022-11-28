@@ -18,11 +18,12 @@ use gtk::{prelude::*, Box, Button, Entry};
 use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
-use crate::kvpair::KvPair;
 use crate::preferences;
 use crate::preferences::utils::get_prefs;
 use crate::preferences::KeyValuePair;
 use crate::utils::format_json_string;
+use crate::widgets::kvpair::KvPair;
+use crate::widgets::request_row::RequestRow;
 
 // ANCHOR: object
 // Object holding the state
@@ -36,9 +37,7 @@ pub struct Window {
     #[template_child]
     pub new_workspace_name: TemplateChild<Entry>,
     #[template_child]
-    pub requests: TemplateChild<DropDown>,
-    #[template_child]
-    pub requests_model: TemplateChild<StringList>,
+    pub requests: TemplateChild<Box>,
     #[template_child]
     pub new_request_name: TemplateChild<Entry>,
     #[template_child]
@@ -247,25 +246,33 @@ impl Window {
 
     pub fn add_request(&self, request_name: String) {
         // check whether the request name already exists
-        let size = self.requests_model.n_items();
-        for i in 0..size {
-            let str = self.requests_model.string(i);
-            if str.is_some() && str.unwrap() == request_name {
+        let prefs = preferences::utils::get_prefs();
+        let requests = prefs.workspaces[self.workspaces.selected() as usize]
+            .requests
+            .clone();
+        for i in 0..requests.len() {
+            if requests[i].name == request_name {
                 return;
             }
         }
 
         // create the new request
-        self.requests_model.append(request_name.as_str());
+        let request_row = RequestRow::new(request_name.clone());
+        let child = request_row.build(
+            clone!(@weak self as win => move |request_name, container| {
+
+            }),
+            clone!(@weak self as win => move |request_name, container| {
+                win.requests.remove(container);
+            }),
+        );
+        self.requests.append(&child);
+
         let mut request = preferences::Request::default();
-        request.name = request_name;
+        request.name = request_name.clone();
 
         // load and save the new created request
         self.load_request(&request);
-
-        // select the newly created item in the requests list
-        self.requests
-            .set_selected(self.requests_model.n_items() - 1);
 
         self.save_request();
     }
@@ -301,7 +308,7 @@ impl Window {
 
     pub fn load_workspace(&self, workspace: &preferences::Workspace) {
         println!("load workspace {:?}", workspace);
-
+        /*
         self.requests_model
             .splice(0, self.requests_model.n_items(), &[]);
 
@@ -309,7 +316,7 @@ impl Window {
             self.requests_model
                 .append(workspace.requests[i].name.as_str());
         }
-
+        */
         self.load_request(&workspace.requests[0]);
     }
 
@@ -319,10 +326,12 @@ impl Window {
         request.queries = self.query_pairs.clone().take();
         request.body = self.get_body_text();
         request.target_url = self.url.text().to_string();
+        /*
         let request_name = self.requests_model.string(self.requests.selected());
         if request_name.is_some() {
             request.name = request_name.unwrap().to_string();
         }
+        */
         request.method = self.method.selected();
         request
     }
@@ -411,10 +420,12 @@ impl ObjectImpl for Window {
                 win.load_workspace(&workspace);
             }));
 
+        /*
         self.requests
             .connect_activate(clone!(@weak self as win => move |_| {
                 win.save_request();
             }));
+
 
         self.requests
             .connect_selected_item_notify(clone!(@weak self as win => move |_| {
@@ -426,7 +437,7 @@ impl ObjectImpl for Window {
                 }
                 win.load_request(&request);
             }));
-
+            */
         self.init_body();
 
         self.load_prefs();

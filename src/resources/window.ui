@@ -62,17 +62,9 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkDropDown" id="requests">
-                    <property name="margin-top">15</property>
-                    <property name="model">
-                      <object class="GtkStringList" id="requests_model" />
-                    </property>
-                  </object>
-                </child>
-                <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
-                    <property name="margin-top">10</property>
+                    <property name="margin-top">20</property>
                     <child>
                       <object class="GtkEntry" id="new_request_name">
                         <property name="placeholder-text">Request name</property>
@@ -86,6 +78,12 @@
                         <property name="margin-start">10</property>
                       </object>
                     </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox" id="requests">
+                    <property name="margin-top">15</property>
+                    <property name="orientation">vertical</property>
                   </object>
                 </child>
               </object>

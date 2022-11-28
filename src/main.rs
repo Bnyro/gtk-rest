@@ -1,8 +1,8 @@
 mod application;
 mod client;
-mod kvpair;
 mod preferences;
 mod utils;
+mod widgets;
 mod window;
 use application::GtkRestApplication;
 use gtk::gio;
