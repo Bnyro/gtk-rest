@@ -20,6 +20,7 @@ use sourceview5::traits::BufferExt;
 use crate::client::Request;
 use crate::preferences;
 use crate::preferences::utils::get_prefs;
+use crate::preferences::utils::save_prefs;
 use crate::preferences::KeyValuePair;
 use crate::utils::format_json_string;
 use crate::widgets::kvpair::KvPair;
@@ -54,6 +55,7 @@ pub struct Window {
     pub response: TemplateChild<sourceview5::View>,
     pub header_pairs: RefCell<Vec<KeyValuePair>>,
     pub query_pairs: RefCell<Vec<KeyValuePair>>,
+    pub request_index: RefCell<usize>,
 }
 // ANCHOR_END: object
 
@@ -138,7 +140,7 @@ impl Window {
         };
 
         // create the new request
-        self.add_request(text.to_string());
+        self.add_request(text.to_string(), false);
         self.new_request_name.set_text("");
     }
 
@@ -244,25 +246,33 @@ impl Window {
         self.load_workspace(&workspace);
     }
 
-    pub fn add_request(&self, request_name: String) {
+    pub fn add_request(&self, request_name: String, clean: bool) {
         // check whether the request name already exists
-        let prefs = preferences::utils::get_prefs();
-        let requests = prefs.workspaces[self.workspaces.selected() as usize]
-            .requests
-            .clone();
-        for i in 0..requests.len() {
-            if requests[i].name == request_name {
-                return;
+        if !clean {
+            let prefs = preferences::utils::get_prefs();
+            let requests = prefs.workspaces[self.workspaces.selected() as usize]
+                .requests
+                .clone();
+            for i in 0..requests.len() {
+                if requests[i].name == request_name {
+                    return;
+                }
             }
         }
 
         // create the new request
         let request_row = RequestRow::new(request_name.clone());
         let child = request_row.build(
-            clone!(@weak self as win => move |request_name, container| {
-
+            clone!(@weak self as win => move |request_name, _container| {
+                win.save_request();
+                let request_index = win.get_request_index(request_name);
+                win.request_index.replace(request_index);
+                let request = win.get_request_by_index(request_index);
+                win.load_request(&request);
             }),
             clone!(@weak self as win => move |request_name, container| {
+                let request_index = win.get_request_index(request_name);
+                win.delete_request_by_index(request_index);
                 win.requests.remove(container);
             }),
         );
@@ -275,6 +285,31 @@ impl Window {
         self.load_request(&request);
 
         self.save_request();
+    }
+
+    pub fn get_request_index(&self, request_name: String) -> usize {
+        let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
+        let index = workspace
+            .requests
+            .iter()
+            .position(|request| request.name == request_name);
+        match index {
+            Some(index) => return index,
+            None => return 0,
+        }
+    }
+
+    pub fn get_request_by_index(&self, index: usize) -> preferences::Request {
+        let workspace = get_prefs().workspaces.clone();
+        workspace[self.workspaces.selected() as usize].requests[index].clone()
+    }
+
+    pub fn delete_request_by_index(&self, index: usize) {
+        let mut prefs = get_prefs();
+        prefs.workspaces[self.workspaces.selected() as usize]
+            .requests
+            .remove(index);
+        save_prefs(&prefs);
     }
 
     pub fn load_request(&self, request: &preferences::Request) {
@@ -307,16 +342,14 @@ impl Window {
     }
 
     pub fn load_workspace(&self, workspace: &preferences::Workspace) {
-        println!("load workspace {:?}", workspace);
-        /*
-        self.requests_model
-            .splice(0, self.requests_model.n_items(), &[]);
+        while let Some(child) = self.requests.first_child() {
+            self.requests.remove(&child);
+        }
 
         for i in 0..workspace.requests.len() {
-            self.requests_model
-                .append(workspace.requests[i].name.as_str());
+            self.add_request(workspace.requests[i].name.clone(), true);
         }
-        */
+
         self.load_request(&workspace.requests[0]);
     }
 
@@ -326,12 +359,10 @@ impl Window {
         request.queries = self.query_pairs.clone().take();
         request.body = self.get_body_text();
         request.target_url = self.url.text().to_string();
-        /*
-        let request_name = self.requests_model.string(self.requests.selected());
-        if request_name.is_some() {
-            request.name = request_name.unwrap().to_string();
-        }
-        */
+        let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
+        request.name = workspace.requests[self.request_index.clone().take()]
+            .name
+            .clone();
         request.method = self.method.selected();
         request
     }
@@ -420,24 +451,6 @@ impl ObjectImpl for Window {
                 win.load_workspace(&workspace);
             }));
 
-        /*
-        self.requests
-            .connect_activate(clone!(@weak self as win => move |_| {
-                win.save_request();
-            }));
-
-
-        self.requests
-            .connect_selected_item_notify(clone!(@weak self as win => move |_| {
-                let workspace = get_prefs().workspaces[win.workspaces.selected() as usize].clone();
-                let mut request = preferences::Request::default();
-                let index = win.requests.selected() as usize;
-                if workspace.requests.len() > index {
-                    request = workspace.requests[index].clone();
-                }
-                win.load_request(&request);
-            }));
-            */
         self.init_body();
 
         self.load_prefs();
