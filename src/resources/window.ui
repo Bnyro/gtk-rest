@@ -34,6 +34,7 @@
                 <property name="margin-start">15</property>
                 <property name="margin-end">15</property>
                 <property name="margin-top">15</property>
+                <property name="width-request">250</property>
                 <child>
                   <object class="GtkDropDown" id="workspaces">
                     <property name="model">
