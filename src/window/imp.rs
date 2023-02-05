@@ -28,6 +28,9 @@ use crate::utils::format_json_string;
 use crate::widgets::kvpair::KvPair;
 use crate::widgets::request_row::RequestRow;
 
+
+const INVALID_SELECTION: usize = 4294967295;
+
 // ANCHOR: object
 // Object holding the state
 #[derive(CompositeTemplate, Default)]
@@ -353,18 +356,23 @@ impl Window {
         request.queries = self.query_pairs.clone().take();
         request.body = self.get_body_text();
         request.target_url = self.url.text().to_string();
-        // let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
-        let workspace = get_prefs().workspaces[0].clone();
-        request.name = workspace.requests[self.request_index.clone().take()]
-            .name
-            .clone();
-        request.method = self.method.selected();
+
+        let workspace_index = self.workspaces.selected() as usize;
+
+        let mut request = preferences::Request::default();
+        if workspace_index != INVALID_SELECTION {
+            let workspace = self.preferences.borrow().workspaces[workspace_index].clone();
+            request.name = workspace.requests[self.request_index.clone().take()]
+                .name
+                .clone();
+            request.method = self.method.selected();
+        }
         request
     }
 
     pub fn save_request(&self) {
         let workspace_index = self.workspaces.selected() as usize;
-        if workspace_index == 4294967295 { return }
+        if workspace_index == INVALID_SELECTION { return }
 
         let request = &self.get_request();
 
@@ -429,6 +437,8 @@ impl ObjectImpl for Window {
         self.parent_constructed();
 
         self.set_response_text(String::from(""), None::<String>);
+
+        self.preferences.swap(&RefCell::new(get_prefs()));
 
         self.workspaces
             .connect_activate(clone!(@weak self as win => move |_| {
