@@ -1,4 +1,5 @@
-use reqwest::blocking::{Client, Response};
+
+use ureq::Response;
 
 use crate::preferences::KeyValuePair;
 
@@ -27,23 +28,20 @@ impl Request {
         }
     }
 
-    pub async fn execute(&self) -> Result<Response, reqwest::Error> {
-        let client = Client::new();
+    pub fn execute(&self) -> Result<Response, ureq::Error> {
         let url = self.url.as_str();
         let mut request = match self.method {
-            0 => client.get(url),
-            1 => client.post(url),
-            2 => client.put(url),
-            3 => client.patch(url),
-            4 => client.delete(url),
-            5 => client.head(url),
-            _ => client.get(url),
-        };
-
-        request = request.header("User-Agent", "Gtk-Rest/1.0");
+            0 => ureq::get(url),
+            1 => ureq::post(url),
+            2 => ureq::put(url),
+            3 => ureq::patch(url),
+            4 => ureq::delete(url),
+            5 => ureq::head(url),
+            _ => ureq::get(url),
+        }.set("User-Agent", "gtk-rest");
 
         if !self.body.trim().is_empty() {
-            request = request.header("Content-Type", "application/json");
+            request = request.set("Content-Type", "application/json");
         }
 
         // insert all headers
@@ -52,7 +50,7 @@ impl Request {
             if pair.key.trim().is_empty() || pair.value.trim().is_empty() {
                 continue;
             }
-            request = request.header(pair.key.as_str(), pair.value.as_str());
+            request = request.set(pair.key.as_str(), pair.value.as_str());
         }
 
         // insert all queries
@@ -61,10 +59,9 @@ impl Request {
             if pair.key.trim().is_empty() || pair.value.trim().is_empty() {
                 continue;
             }
-            request = request.query(&[(pair.key, pair.value)]);
+            request = request.query(pair.key.as_str(), pair.value.as_str());
         }
 
-        request = request.body(self.body.clone());
-        request.send()
+        request.send_string(&self.body)
     }
 }

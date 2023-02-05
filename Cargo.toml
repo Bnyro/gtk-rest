@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 gtk = {version = "0.5.2", package = "gtk4", features = ["v4_6"]}
-reqwest = {version = "0.11.13", features = ["rustls-tls", "blocking"], default-features = false}
+ureq = { version = "2.6.2", features = [ "charset" ] }
 sourceview5 = "0.5.0"
 serde = { version = "^1.0", features = ["derive"] }
 serde_json = "^1.0"

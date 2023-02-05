@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::thread;
 
 use adw::subclass::prelude::AdwApplicationWindowImpl;
 use adw::subclass::prelude::WidgetClassSubclassExt;
@@ -95,24 +96,18 @@ impl Window {
         self.save_request();
 
         let (sender, receiver) = MainContext::channel::<(String, Option<String>)>(PRIORITY_DEFAULT);
-        let main_context = MainContext::default();
 
         // The long running operation runs now in a separate thread
-        main_context.spawn_local(clone!(@strong sender => async move {
-            // Deactivate the button until the operation is done
-
-            let response = request.execute().await;
+        thread::spawn(move || {
+            let response = request.execute();
 
             if let Ok(response) = response {
-                let headers = response.headers().clone();
-                        let content_type = headers.get("Content-Type");
-                        let ct_split: Vec<&str> =
-                            content_type.unwrap().to_str().unwrap().split(";").collect();
-                        let text = response.text().unwrap();
-                        let ct = ct_split[0];
-                sender.send((text, Some(ct.to_string()))).expect("Error sending data");
+                let content_type = response.content_type().to_string();
+                let text = response.into_string();
+                
+                sender.send((text.unwrap(), Some(content_type))).expect("Error sending data");
             }
-        }));
+        });
         receiver.attach(
             None,
             clone!(@weak self as win => @default-return Continue(false),
@@ -359,7 +354,8 @@ impl Window {
         request.queries = self.query_pairs.clone().take();
         request.body = self.get_body_text();
         request.target_url = self.url.text().to_string();
-        let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
+        // let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
+        let workspace = get_prefs().workspaces[0].clone();
         request.name = workspace.requests[self.request_index.clone().take()]
             .name
             .clone();
