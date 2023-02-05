@@ -20,6 +20,7 @@ use sourceview5::traits::BufferExt;
 
 use crate::client::Request;
 use crate::preferences;
+use crate::preferences::Preferences;
 use crate::preferences::utils::get_prefs;
 use crate::preferences::utils::save_prefs;
 use crate::preferences::KeyValuePair;
@@ -57,6 +58,7 @@ pub struct Window {
     pub header_pairs: RefCell<Vec<KeyValuePair>>,
     pub query_pairs: RefCell<Vec<KeyValuePair>>,
     pub request_index: RefCell<usize>,
+    pub preferences: RefCell<Preferences>
 }
 // ANCHOR_END: object
 
@@ -221,7 +223,6 @@ impl Window {
                 return;
             }
         }
-        let mut prefs = crate::preferences::utils::get_prefs();
         self.workspaces_model.append(workspace_name.as_str());
         let mut workspace = preferences::Workspace::default();
         workspace.name = workspace_name;
@@ -230,8 +231,8 @@ impl Window {
         workspace.requests.push(request);
 
         // save to the settings
-        prefs.workspaces.push(workspace.clone());
-        crate::preferences::utils::save_prefs(&prefs);
+        self.preferences.borrow_mut().workspaces.push(workspace.clone());
+        crate::preferences::utils::save_prefs(&self.preferences.borrow());
 
         // select the newly created workspace
         self.workspaces
@@ -244,8 +245,7 @@ impl Window {
     pub fn add_request(&self, request_name: String, clean: bool) {
         // check whether the request name already exists
         if !clean {
-            let prefs = preferences::utils::get_prefs();
-            let requests = prefs.workspaces[self.workspaces.selected() as usize]
+            let requests = self.preferences.borrow().workspaces[self.workspaces.selected() as usize]
                 .requests
                 .clone();
             for i in 0..requests.len() {
@@ -283,7 +283,7 @@ impl Window {
     }
 
     pub fn get_request_index(&self, request_name: String) -> usize {
-        let workspace = get_prefs().workspaces[self.workspaces.selected() as usize].clone();
+        let workspace = self.preferences.borrow().workspaces[self.workspaces.selected() as usize].clone();
         let index = workspace
             .requests
             .iter()
@@ -295,16 +295,15 @@ impl Window {
     }
 
     pub fn get_request_by_index(&self, index: usize) -> preferences::Request {
-        let workspace = get_prefs().workspaces.clone();
+        let workspace = self.preferences.borrow().workspaces.clone();
         workspace[self.workspaces.selected() as usize].requests[index].clone()
     }
 
     pub fn delete_request_by_index(&self, index: usize) {
-        let mut prefs = get_prefs();
-        prefs.workspaces[self.workspaces.selected() as usize]
+        self.preferences.borrow_mut().workspaces[self.workspaces.selected() as usize]
             .requests
             .remove(index);
-        save_prefs(&prefs);
+        save_prefs(&self.preferences.borrow());
     }
 
     pub fn load_request(&self, request: &preferences::Request) {
@@ -364,9 +363,8 @@ impl Window {
     }
 
     pub fn save_request(&self) {
-        let mut prefs = crate::preferences::utils::get_prefs();
-
         let workspace_index = self.workspaces.selected() as usize;
+        if workspace_index == 4294967295 { return }
 
         let request = &self.get_request();
 
@@ -375,33 +373,31 @@ impl Window {
         };
 
         let mut added = false;
-        for i in 0..prefs.workspaces[workspace_index].requests.len() {
-            if prefs.workspaces[workspace_index].requests[i].name == request.clone().name {
-                prefs.workspaces[workspace_index].requests[i] = request.clone();
+        for i in 0..self.preferences.borrow().workspaces[workspace_index].requests.len() {
+            if self.preferences.borrow().workspaces[workspace_index].requests[i].name == request.clone().name {
+                self.preferences.borrow_mut().workspaces[workspace_index].requests[i] = request.clone();
                 added = true;
             }
         }
         if !added {
-            prefs.workspaces[workspace_index]
+            self.preferences.borrow_mut().workspaces[workspace_index]
                 .requests
                 .push(request.clone());
         }
 
-        crate::preferences::utils::save_prefs(&prefs);
+        crate::preferences::utils::save_prefs(&self.preferences.borrow());
     }
 
     pub fn load_prefs(&self) {
-        let prefs = crate::preferences::utils::get_prefs();
-
         for i in 0..self.workspaces_model.n_items() {
             self.workspaces_model.remove(i);
         }
-        for i in 0..prefs.workspaces.len() {
-            self.workspaces_model.append(&prefs.workspaces[i].name);
+        for i in 0..self.preferences.borrow().workspaces.len() {
+            self.workspaces_model.append(&self.preferences.borrow().workspaces[i].name);
         }
 
-        if prefs.workspaces.len() > 0 {
-            self.load_workspace(&prefs.workspaces[0]);
+        if self.preferences.borrow().workspaces.len() > 0 {
+            self.load_workspace(&self.preferences.borrow().workspaces[0]);
         }
     }
 
@@ -441,9 +437,8 @@ impl ObjectImpl for Window {
 
         self.workspaces
             .connect_selected_item_notify(clone!(@weak self as win => move |_| {
-                let prefs = get_prefs();
-                if prefs.workspaces.is_empty() { return };
-                let workspace = prefs.workspaces[win.workspaces.selected() as usize].clone();
+                if win.preferences.borrow().workspaces.is_empty() { return };
+                let workspace = win.preferences.borrow().workspaces[win.workspaces.selected() as usize].clone();
                 win.load_workspace(&workspace);
             }));
 
